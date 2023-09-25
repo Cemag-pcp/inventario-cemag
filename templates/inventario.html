@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Página de Filtro{% endblock %}
+
+{% block content %}
+<h2>Filtrar Resultados</h2>
+
+<!-- Mensagem -->
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="flash-messages">
+    {% for message in messages %}
+    <li class="flash-message">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<!-- Filtros -->
+
+<form id="filtro-form">
+    <label for="codigo-filtro">Código:</label>
+    <input type="text" id="codigo-filtro" name="codigo-filtro"><br><br>
+    <label for="descricao-filtro">Descrição:</label>
+    <input type="text" id="descricao-filtro" name="descricao-filtro"><br><br>
+    <input type="submit" value="Filtrar">
+</form>
+
+<!-- Botão para acionar o modal -->
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#meuModal">Abrir Modal</button>
+
+<!-- Modal -->
+
+<div id="meuModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Peça fora da lista</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="codigo">Código ou Descrição:</label>
+                            <input type="text" class="form-control" id="codigo" placeholder="Digite o código ou descrição">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="quantidade">Quantidade:</label>
+                            <input type="number" class="form-control" id="quantidade" placeholder="Digite a quantidade">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="salvarBtn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tabela -->
+
+<table id="tabela-principal">
+    <!-- Tabela para exibir os resultados filtrados -->
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Contagem</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dado in dados %}
+        <tr>
+            <td>{{dado[0]}}</td>
+            <td>{{dado[1]}}</td>
+            <td>
+                <input type="number" class="valor-input">
+            </td>
+            <td>{{dado[3]}}</td>
+            <td>
+                <input id="salvar-registro" type="button">
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Paginação -->
+
+<div id="paginacao">
+    <ul class="pagination">
+        <!-- Os botões de página serão inseridos aqui dinamicamente -->
+    </ul>
+</div>
+
+<!-- FILTROS DA TABELA PRINCIPAL -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Captura o formulário e a tabela
+        const form = document.getElementById('filtro-form');
+        const table = document.getElementById('tabela-principal');
+
+        // Adiciona um ouvinte de evento para o envio do formulário
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // Impede o envio do formulário padrão
+
+            // Captura os valores dos campos de filtro
+            const campo1Value = document.getElementById('codigo-filtro').value.toLowerCase();
+            const campo2Value = document.getElementById('descricao-filtro').value.toLowerCase();
+
+            // Loop pelas linhas da tabela (começando pela segunda linha)
+            for (let i = 1; i < table.rows.length; i++) {
+                const row = table.rows[i];
+                const codigo = row.cells[0].textContent.toLowerCase();
+                const descricao = row.cells[1].textContent.toLowerCase();
+
+                // Verifica se os valores da linha correspondem aos filtros
+                if (codigo.includes(campo1Value) && descricao.includes(campo2Value)) {
+                    row.style.display = ''; // Exibe a linha
+                } else {
+                    row.style.display = 'none'; // Oculta a linha
+                }
+            }
+        });
+    });
+</script>
+
+<!-- PAGINAÇÃO DA TABELA PRINCIPAL -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Dados completos da tabela
+        const dadosCompleto = {{ dados | tojson | safe }};
+        
+        // Número de itens por página
+        const itensPorPagina = 10;
+        
+        // Página atual
+        let paginaAtual = 1;
+
+        // Função para atualizar a tabela com os dados da página atual
+        function atualizarTabela() {
+            const tabela = document.getElementById('tabela-principal');
+            const tbody = tabela.querySelector('tbody');
+            const dadosDaPagina = dadosCompleto.slice(
+                (paginaAtual - 1) * itensPorPagina,
+                paginaAtual * itensPorPagina
+            );
+
+            tbody.innerHTML = '';
+
+            for (const dado of dadosDaPagina) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dado[0]}</td>
+                    <td>${dado[1]}</td>
+                    <td>
+                        <input type="number" class="valor-input">
+                    </td>
+                    <td>${dado[3]}</td>
+                    <td>
+                        <input id="salvar-registro" type="button">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Inicializa a tabela com os dados da primeira página
+        atualizarTabela();
+
+        // Função para criar os botões de paginação
+        function criarBotoesPaginacao() {
+            const paginacao = document.getElementById('paginacao');
+            paginacao.innerHTML = '';
+
+            const totalPaginas = Math.ceil(dadosCompleto.length / itensPorPagina);
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.addEventListener('click', function () {
+                    paginaAtual = i;
+                    atualizarTabela();
+                    criarBotoesPaginacao();
+                });
+
+                if (i === paginaAtual) {
+                    button.classList.add('pagina-atual');
+                }
+
+                paginacao.appendChild(button);
+            }
+        }
+
+        // Inicializa os botões de paginação
+        criarBotoesPaginacao();
+    });
+</script>
+
+<!-- AÇÃO DO BOTÃO DE ENVIAR -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Adicione um evento de clique a todos os botões "Salvar"
+        var salvarBotoes = document.querySelectorAll("#salvar-registro");
+        salvarBotoes.forEach(function (botao) {
+            botao.addEventListener("click", function () {
+                // Encontre a linha pai do botão clicado
+                var linha = botao.closest("tr");
+                // Capture os dados da linha
+                var codigo = linha.querySelector("td:nth-child(1)").textContent;
+                var descricao = linha.querySelector("td:nth-child(2)").textContent;
+                var contagem = linha.querySelector(".valor-input").value;
+                var total = linha.querySelector("td:nth-child(4)").textContent;
+
+                // Crie um objeto com os dados da linha
+                var dadosLinha = {
+                    codigo: codigo,
+                    descricao: descricao,
+                    contagem: contagem,
+                    total: total
+                };
+
+                // Envie uma solicitação AJAX para o backend com os dados da linha
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/inventario", true);
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.send(JSON.stringify(dadosLinha));
+
+                // Lide com a resposta do servidor, se necessário
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // A resposta do servidor foi bem-sucedida
+                        alert("Dados salvos com sucesso!");
+                        // Recarregue a página após salvar os dados
+                        location.reload();
+                    }
+                };
+            });
+        });
+    });
+</script>
+
+
+<!-- AÇÃO DO BOTÃO DE ENVIAR DENTRO DO MODAL -->
+
+<script>
+    // Captura o botão de salvar
+    var salvarBtn = document.getElementById("salvarBtn");
+
+    // Captura os campos de entrada
+    var codigoInput = document.getElementById("codigo");
+    var quantidadeInput = document.getElementById("quantidade");
+
+    // Define o evento de clique no botão de salvar
+    salvarBtn.addEventListener("click", function() {
+        // Captura os valores dos campos de código e quantidade
+        var codigo = codigoInput.value;
+        var quantidade = quantidadeInput.value;
+
+        // Crie um objeto com os dados que você deseja enviar ao backend
+        var data = {
+            codigo: codigo,
+            quantidade: quantidade
+        };
+
+        // Use o Axios para fazer uma solicitação POST para sua rota no backend
+        axios.post('/modal', data)
+            .then(function (response) {
+                // Lida com a resposta do backend, se necessário
+                console.log(response.data);
+
+                // Limpa os campos de entrada
+                codigoInput.value = "";
+                quantidadeInput.value = "";
+
+                // Fecha o modal após o envio bem-sucedido
+                $('#meuModal').modal('hide');
+            })
+            .catch(function (error) {
+                // Lida com erros, se houver
+                console.error(error);
+            });
+    });
+</script>
+
+
+{% endblock %}
