@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Filtrar Resultados</h2>
 
-<!-- Mensagem -->
+<!-- MENSAGEM -->
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}
@@ -17,7 +17,7 @@
 {% endif %}
 {% endwith %}
 
-<!-- Filtros -->
+<!-- FILTROS -->
 
 <form id="filtro-form">
     <label for="codigo-filtro">Código:</label>
@@ -27,11 +27,11 @@
     <input type="submit" value="Filtrar">
 </form>
 
-<!-- Botão para acionar o modal -->
+<!-- BOTÃO PARA ACIONAR MODAL -->
 
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#meuModal">Abrir Modal</button>
 
-<!-- Modal -->
+<!-- MODAL -->
 
 <div id="meuModal" class="modal fade">
     <div class="modal-dialog">
@@ -44,8 +44,12 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="form-group col-md-6">
-                            <label for="codigo">Código ou Descrição:</label>
-                            <input type="text" class="form-control" id="codigo" placeholder="Digite o código ou descrição">
+                            <label for="codigo">Código:</label>
+                            <input type="text" class="form-control" id="codigo" placeholder="Digite o código">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="descricao">Descrição:</label>
+                            <input type="text" class="form-control" id="descricao" placeholder="Digite a descrição">
                         </div>
                         <div class="form-group col-md-6">
                             <label for="quantidade">Quantidade:</label>
@@ -62,7 +66,7 @@
     </div>
 </div>
 
-<!-- Tabela -->
+<!-- TABELA -->
 
 <table id="tabela-principal">
     <!-- Tabela para exibir os resultados filtrados -->
@@ -92,7 +96,13 @@
     </tbody>
 </table>
 
-<!-- Paginação -->
+<!-- LOADING SPINNER -->
+
+<div id="loading-overlay" style="display: none;">
+    <div id="loading-spinner"></div>
+</div>
+
+<!-- PAGINAÇÃO -->
 
 <div id="paginacao">
     <ul class="pagination">
@@ -206,7 +216,7 @@
     });
 </script>
 
-<!-- AÇÃO DO BOTÃO DE ENVIAR -->
+<!-- AÇÃO DO BOTÃO DE ENVIAR DA TABELA -->
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -250,7 +260,6 @@
     });
 </script>
 
-
 <!-- AÇÃO DO BOTÃO DE ENVIAR DENTRO DO MODAL -->
 
 <script>
@@ -259,17 +268,21 @@
 
     // Captura os campos de entrada
     var codigoInput = document.getElementById("codigo");
+    var descricaoInput = document.getElementById("descricao");
     var quantidadeInput = document.getElementById("quantidade");
 
     // Define o evento de clique no botão de salvar
     salvarBtn.addEventListener("click", function() {
+        $("#loading-overlay").show();
         // Captura os valores dos campos de código e quantidade
         var codigo = codigoInput.value;
+        var descricao = descricaoInput.value;
         var quantidade = quantidadeInput.value;
 
         // Crie um objeto com os dados que você deseja enviar ao backend
         var data = {
             codigo: codigo,
+            descricao: descricao,
             quantidade: quantidade
         };
 
@@ -281,14 +294,20 @@
 
                 // Limpa os campos de entrada
                 codigoInput.value = "";
+                descricaoInput.value = "";
                 quantidadeInput.value = "";
 
                 // Fecha o modal após o envio bem-sucedido
                 $('#meuModal').modal('hide');
+                $("#loading-overlay").hide();
+                location.reload();
+
             })
+
             .catch(function (error) {
                 // Lida com erros, se houver
                 console.error(error);
+                $("#loading-overlay").hide();
             });
     });
 </script>

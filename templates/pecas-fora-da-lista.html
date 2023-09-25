@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Página de Filtro{% endblock %}
+
+{% block content %}
+<h2>Filtrar Resultados</h2>
+
+<!-- MENSAGEM -->
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="flash-messages">
+    {% for message in messages %}
+    <li class="flash-message">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<!-- FILTROS -->
+
+<form id="filtro-form">
+    <label for="codigo-descricao-filtro">Código:</label>
+    <input type="text" id="codigo-filtro" name="codigo-filtro"><br><br>
+    <input type="submit" value="Filtrar">
+</form>
+
+<!-- TABELA -->
+
+<table id="tabela-peca-fora-da-lista">
+    <!-- Tabela para exibir os resultados filtrados -->
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Contagem</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dado in dados %}
+        <tr>
+            <td>{{dado[0]}}</td>
+            <td>{{dado[1]}}</td>
+            <td>{{dado[3]}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- LOADING SPINNER -->
+
+<div id="loading-overlay" style="display: none;">
+    <div id="loading-spinner"></div>
+</div>
+
+<!-- PAGINAÇÃO -->
+
+<div id="paginacao">
+    <ul class="pagination">
+        <!-- Os botões de página serão inseridos aqui dinamicamente -->
+    </ul>
+</div>
+
+<!-- FILTROS DA TABELA PRINCIPAL -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Captura o formulário e a tabela
+        const form = document.getElementById('filtro-form');
+        const table = document.getElementById('tabela-peca-fora-da-lista');
+
+        // Adiciona um ouvinte de evento para o envio do formulário
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // Impede o envio do formulário padrão
+
+            // Captura os valores dos campos de filtro
+            const campo1Value = document.getElementById('codigo-descricao-filtro').value.toLowerCase();
+
+            // Loop pelas linhas da tabela (começando pela segunda linha)
+            for (let i = 1; i < table.rows.length; i++) {
+                const row = table.rows[i];
+                const codigo = row.cells[0].textContent.toLowerCase();
+
+                // Verifica se os valores da linha correspondem aos filtros
+                if (codigo.includes(campo1Value) && descricao.includes(campo2Value)) {
+                    row.style.display = ''; // Exibe a linha
+                } else {
+                    row.style.display = 'none'; // Oculta a linha
+                }
+            }
+        });
+    });
+</script>
+
+<!-- PAGINAÇÃO DA TABELA PRINCIPAL -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Dados completos da tabela
+        const dadosCompleto = {{ dados | tojson | safe }};
+        
+        // Número de itens por página
+        const itensPorPagina = 10;
+        
+        // Página atual
+        let paginaAtual = 1;
+
+        // Função para atualizar a tabela com os dados da página atual
+        function atualizarTabela() {
+            const tabela = document.getElementById('tabela-peca-fora-da-lista');
+            const tbody = tabela.querySelector('tbody');
+            const dadosDaPagina = dadosCompleto.slice(
+                (paginaAtual - 1) * itensPorPagina,
+                paginaAtual * itensPorPagina
+            );
+
+            tbody.innerHTML = '';
+
+            for (const dado of dadosDaPagina) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dado[0]}</td>
+                    <td>${dado[1]}</td>
+                    <td>
+                        <input type="number" class="valor-input">
+                    </td>
+                    <td>${dado[3]}</td>
+                    <td>
+                        <input id="salvar-registro" type="button">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Inicializa a tabela com os dados da primeira página
+        atualizarTabela();
+
+        // Função para criar os botões de paginação
+        function criarBotoesPaginacao() {
+            const paginacao = document.getElementById('paginacao');
+            paginacao.innerHTML = '';
+
+            const totalPaginas = Math.ceil(dadosCompleto.length / itensPorPagina);
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.addEventListener('click', function () {
+                    paginaAtual = i;
+                    atualizarTabela();
+                    criarBotoesPaginacao();
+                });
+
+                if (i === paginaAtual) {
+                    button.classList.add('pagina-atual');
+                }
+
+                paginacao.appendChild(button);
+            }
+        }
+
+        // Inicializa os botões de paginação
+        criarBotoesPaginacao();
+    });
+</script>
+
+
+{% endblock %}

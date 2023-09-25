@@ -1,5 +1,5 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, make_response, Response
-from flask import render_template_string, jsonify
+from flask import Flask, flash, render_template, redirect, url_for, request, session, flash, make_response, Response
+from flask import render_template_string, jsonify, get_flashed_messages
 import functools
 
 import datetime
@@ -52,7 +52,6 @@ def login():
 
         if user is not None:
             session['user_id'] = user['usuario']
-            flash('Bem vindo', category='error')
             return redirect(url_for('inventario'))
         else:
             flash('Usuário ou Senha inválida', category='error')
@@ -88,8 +87,8 @@ def inventario():
         cur.close()
         conn.close()
 
-        return jsonify({"message": "Dados recebidos com sucesso"})
-
+        return redirect(url_for('inventario'))
+    
     user_almox = int(session['user_id'])
 
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
@@ -100,7 +99,7 @@ def inventario():
         """ SELECT  t1.codigo,
                     t1.descricao, 
                     t1.familia, 
-                    COALESCE(SUM(t2.contagem), 0) AS total_contagem
+                    ROUND(COALESCE(SUM(t2.contagem)::numeric, 0), 2) AS total_contagem
             FROM inventario.base_inventario_2023 AS t1
             LEFT JOIN inventario.registros AS t2 ON t2.codigo = t1.codigo 
             WHERE t1.familia = {}
@@ -128,11 +127,64 @@ def modal():
     data = request.get_json()
 
     codigo = data['codigo']
+    descricao = data['descricao']
     quantidade = data['quantidade']
+    data_atual = datetime.now()
+    familia = int(session['user_id'])
+    origem = 'Fora da lista'
 
-    print(codigo, quantidade)
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
+                            password=DB_PASS, host=DB_HOST)
+    cur = conn.cursor()
 
-    return 'salvo com sucesso'
+    if codigo:
+        cur.execute("SELECT * FROM inventario.base_inventario_2023 WHERE codigo = %s AND familia = %s", (codigo, familia))
+        data_verificar = cur.fetchall()
+        
+        if len(data_verificar) > 0:
+            flash('Peça já existe na lista', 'error')
+
+            return redirect(url_for('inventario'))
+        
+        else:
+            # Inserir na base de cadastro de peça para aparecer da próxima vez
+            cur.execute("INSERT INTO inventario.base_inventario_2023 (codigo, descricao, familia, origem) VALUES (%s, %s, %s, %s)", (codigo, descricao, familia, origem))
+
+            # Inserir na base de registros
+            cur.execute("INSERT INTO inventario.registros (codigo, descricao, familia, contagem, data_hora_atual) VALUES (%s, %s, %s, %s, %s)", (codigo, descricao, familia, quantidade, data_atual))
+
+            # Fazer commit das alterações no banco de dados
+            conn.commit()
+
+            # Peça adicionada na lista com sucesso
+            flash("Peça adicionada na lista com sucesso", 'sucess')
+            
+            return redirect(url_for('inventario'))
+
+    conn.close()
+
+    return redirect(url_for('inventario'))
+
+
+@app.route('/pecas-fora-da-lista', methods=['GET'])
+@login_required
+def pecas_fora_da_lista():
+    
+    user_almox = int(session['user_id'])
+
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
+                            password=DB_PASS, host=DB_HOST)
+    cur = conn.cursor()
+
+    cur.execute(
+        """ SELECT *
+            FROM inventario.peca_fora_lista
+            WHERE familia = {}
+        """.format(user_almox))
+
+    dados = cur.fetchall()
+
+    return render_template('pecas-fora-da-lista.html', dados=dados)
 
 
 if __name__ == '__main__':
