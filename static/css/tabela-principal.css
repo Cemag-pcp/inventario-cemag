@@ -1,0 +1,7 @@
+#tabela-principal th:nth-child(2),
+#tabela-principal td:nth-child(2) {
+    max-width: 500px; /* Defina a largura máxima desejada em pixels */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adiciona reticências ao texto que exceder a largura */
+    white-space: nowrap; /* Impede a quebra de texto */
+}

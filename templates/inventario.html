@@ -29,7 +29,7 @@
 
 <!-- BOTÃO PARA ACIONAR MODAL -->
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#meuModal">Abrir Modal</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
 
 <!-- MODAL -->
 
@@ -68,33 +68,35 @@
 
 <!-- TABELA -->
 
-<table id="tabela-principal">
-    <!-- Tabela para exibir os resultados filtrados -->
-    <thead>
-        <tr>
-            <th>Código</th>
-            <th>Descrição</th>
-            <th>Contagem</th>
-            <th>Total</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for dado in dados %}
-        <tr>
-            <td>{{dado[0]}}</td>
-            <td>{{dado[1]}}</td>
-            <td>
-                <input type="number" class="valor-input">
-            </td>
-            <td>{{dado[3]}}</td>
-            <td>
-                <input id="salvar-registro" type="button">
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div id="tabela-container" style="position: relative;">
+    <table id="tabela-principal">
+        <!-- Tabela para exibir os resultados filtrados -->
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th style="width: 500px;">Descrição</th>
+                <th>Contagem</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dado in dados %}
+            <tr>
+                <td>{{dado[0]}}</td>
+                <td style="width: 500px;">{{dado[1]}}</td>
+                <td>
+                    <input type="number" class="valor-input">
+                </td>
+                <td>{{dado[3]}}</td>
+                <td>
+                    <input id="salvar-registro" type="button">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <!-- LOADING SPINNER -->
 
