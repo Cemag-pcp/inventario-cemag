@@ -2,8 +2,7 @@
 
 {% block title %}Página de Login{% endblock %}
 
-{% block content %}
-    <h2>Login</h2>
+{% block body%}
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul class="flash-messages">
@@ -13,11 +12,31 @@
             </ul>
         {% endif %}
     {% endwith %}
-    <form method="POST" action="/login">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password"><br><br>
-        <input type="submit" value="Login">
-    </form>
+    <div class="container">
+        <div class="logreg-box">
+            <div class="form-box login">
+                <div class="form-content">
+                <form form method="POST" action="/login">
+                    <div class="logo_login">
+                        <img id="logo_login" src="static\CEMAGL (1) - Copia.png" alt="logo cemag">
+                    </div>
+                    <input type="text" name="inventario" id="inventario" value="Inventário" disabled>
+                    <h2 style="margin-top: 30px;">Login</h2>
+                    <div class="input-box center">
+                        <span class="icon"><ion-icon style="color: white;"></ion-icon></span>
+                        <input type="text" id="username" name="username" required><br><br>
+                        <label class="opacity-100" for="username">Nome:</label>
+                    </div>
+                    <div class="input-box center">
+                        <span class="icon"><ion-icon name="lock-closed" style="color: white;"></ion-icon></span>
+                        <input type="password" id="password" name="password" required><br><br>
+                        <label class="opacity-100" for="password">Senha:</label>
+                    </div>
+
+                    <button id="changeRouteBtn" type="submit" class="btn btn-light" style="text-align: center;">Login</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
