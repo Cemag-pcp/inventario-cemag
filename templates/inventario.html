@@ -104,6 +104,16 @@
     <div id="loading-spinner"></div>
 </div>
 
+<!-- MENSAGEM DE SUCESSO -->
+<div id="success-message" class="alert alert-success top-message slide-in" style="display: none;">
+    Ação bem-sucedida! Sua mensagem de sucesso aqui.
+</div>
+
+<!-- MENSAGEM DE ERRO -->
+<div id="success-danger" class="alert alert-danger top-danger slide-in" style="display: none;">
+    Erro.
+</div>
+
 <!-- PAGINAÇÃO -->
 
 <div id="paginacao">
@@ -226,37 +236,74 @@
         var salvarBotoes = document.querySelectorAll("#salvar-registro");
         salvarBotoes.forEach(function (botao) {
             botao.addEventListener("click", function () {
+                
                 // Encontre a linha pai do botão clicado
                 var linha = botao.closest("tr");
                 // Capture os dados da linha
                 var codigo = linha.querySelector("td:nth-child(1)").textContent;
                 var descricao = linha.querySelector("td:nth-child(2)").textContent;
                 var contagem = linha.querySelector(".valor-input").value;
-                var total = linha.querySelector("td:nth-child(4)").textContent;
+                var total = linha.querySelector("td:nth-child(4)").textContent; 
 
-                // Crie um objeto com os dados da linha
-                var dadosLinha = {
-                    codigo: codigo,
-                    descricao: descricao,
-                    contagem: contagem,
-                    total: total
-                };
+                // Verifique se contagem é igual a 0
+                if (contagem === '0') {
+                    // Se for igual a 0, exiba um alerta
+                    // Após a ação bem-sucedida
+                    $('#success-danger').html('Informe um valor válido diferente de zero').show();
 
-                // Envie uma solicitação AJAX para o backend com os dados da linha
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "/inventario", true);
-                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-                xhr.send(JSON.stringify(dadosLinha));
+                    // Defina um temporizador para ocultar a mensagem após 5 segundos
+                    setTimeout(function() {
+                    $('#success-danger').hide();
+                    }, 5000); // 5000 milissegundos (5 segundos)
 
-                // Lide com a resposta do servidor, se necessário
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        // A resposta do servidor foi bem-sucedida
-                        alert("Dados salvos com sucesso!");
-                        // Recarregue a página após salvar os dados
-                        location.reload();
-                    }
-                };
+                } else if (contagem === '') {
+                    // Verifique se contagem está em branco
+                    // Após a ação bem-sucedida
+                    $('#success-danger').html('Informe um valor válido').show();
+
+                    // Defina um temporizador para ocultar a mensagem após 5 segundos
+                    setTimeout(function() {
+                    $('#success-danger').hide();
+                    }, 5000); // 5000 milissegundos (5 segundos)
+
+                } else {
+                    // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
+                    
+                    $("#loading-overlay").show();
+
+                    // Crie um objeto com os dados da linha
+                    var dadosLinha = {
+                        codigo: codigo,
+                        descricao: descricao,
+                        contagem: contagem,
+                        total: total
+                    };
+
+                    // Envie uma solicitação AJAX para o backend com os dados da linha
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/inventario", true);
+                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    xhr.send(JSON.stringify(dadosLinha));
+
+                    // Lide com a resposta do servidor, se necessário
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            // Recarregue a página após salvar os dados
+                            location.reload();
+
+                            $("#loading-overlay").hide();
+
+                            // Após a ação bem-sucedida
+                            $('#success-message').html('Registro salvo com sucesso').show();
+
+                            // Defina um temporizador para ocultar a mensagem após 5 segundos
+                            setTimeout(function() {
+                            $('#success-message').hide();
+                            }, 5000); // 5000 milissegundos (5 segundos)
+
+                        }
+                    };
+                }
             });
         });
     });
@@ -275,42 +322,67 @@
 
     // Define o evento de clique no botão de salvar
     salvarBtn.addEventListener("click", function() {
-        $("#loading-overlay").show();
-        // Captura os valores dos campos de código e quantidade
-        var codigo = codigoInput.value;
-        var descricao = descricaoInput.value;
-        var quantidade = quantidadeInput.value;
 
-        // Crie um objeto com os dados que você deseja enviar ao backend
-        var data = {
-            codigo: codigo,
-            descricao: descricao,
-            quantidade: quantidade
-        };
+        if (quantidadeInput === '0') {
 
-        // Use o Axios para fazer uma solicitação POST para sua rota no backend
-        axios.post('/modal', data)
-            .then(function (response) {
-                // Lida com a resposta do backend, se necessário
-                console.log(response.data);
+            $('#success-danger').html('Informe um valor válido diferente de zero').show();
 
-                // Limpa os campos de entrada
-                codigoInput.value = "";
-                descricaoInput.value = "";
-                quantidadeInput.value = "";
+            // Defina um temporizador para ocultar a mensagem após 5 segundos
+            setTimeout(function() {
+                $('#success-danger').hide();
+            }, 5000); // 5000 milissegundos (5 segundos)
 
-                // Fecha o modal após o envio bem-sucedido
-                $('#meuModal').modal('hide');
-                $("#loading-overlay").hide();
-                location.reload();
+        } else if (quantidadeInput === '') {
+            // Verifique se contagem está em branco
+            // Após a ação bem-sucedida
+            $('#success-danger').html('Informe um valor válido').show();
 
-            })
+            // Defina um temporizador para ocultar a mensagem após 5 segundos
+            setTimeout(function() {
+            $('#success-danger').hide();
+            }, 5000); // 5000 milissegundos (5 segundos)
 
-            .catch(function (error) {
-                // Lida com erros, se houver
-                console.error(error);
-                $("#loading-overlay").hide();
-            });
+        } else {
+            // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
+                
+            $("#loading-overlay").show();
+            // Captura os valores dos campos de código e quantidade
+            var codigo = codigoInput.value;
+            var descricao = descricaoInput.value;
+            var quantidade = quantidadeInput.value;
+
+            // Crie um objeto com os dados que você deseja enviar ao backend
+            var data = {
+                codigo: codigo,
+                descricao: descricao,
+                quantidade: quantidade
+            };
+
+            // Use o Axios para fazer uma solicitação POST para sua rota no backend
+            axios.post('/modal', data)
+                .then(function (response) {
+                    // Lida com a resposta do backend, se necessário
+                    console.log(response.data);
+
+                    // Limpa os campos de entrada
+                    codigoInput.value = "";
+                    descricaoInput.value = "";
+                    quantidadeInput.value = "";
+
+                    // Fecha o modal após o envio bem-sucedido
+                    $('#meuModal').modal('hide');
+                    $("#loading-overlay").hide();
+                    location.reload();
+
+                })
+
+                .catch(function (error) {
+                    // Lida com erros, se houver
+                    console.error(error);
+                    $("#loading-overlay").hide();
+                });
+            }
+        
     });
 </script>
 

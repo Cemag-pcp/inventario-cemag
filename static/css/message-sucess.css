@@ -1,0 +1,27 @@
+.top-message {
+    position: fixed;
+    top: -50px; /* Inicialmente, esconde a mensagem acima do topo da tela */
+    left: 20px; /* Define a margem esquerda desejada */
+    right: 20px; /* Define a margem direita desejada */
+    z-index: 9999;
+    background-color: #4CAF50; /* Cor de fundo verde para uma mensagem de sucesso */
+    color: #fff; /* Cor do texto branco para uma mensagem de sucesso */
+    padding: 10px; /* Espaçamento interno */
+    transition: top 0.5s; /* Adiciona uma transição suave para a propriedade top */
+}
+
+.slide-in {
+    top: 0; /* Define a posição da mensagem quando ela aparece */
+}
+
+.top-danger {
+    position: fixed;
+    top: -50px; /* Inicialmente, esconde a mensagem acima do topo da tela */
+    left: 20px; /* Define a margem esquerda desejada */
+    right: 20px; /* Define a margem direita desejada */
+    z-index: 9999;
+    background-color: #db0909; /* Cor de fundo verde para uma mensagem de sucesso */
+    color: #fff; /* Cor do texto branco para uma mensagem de sucesso */
+    padding: 10px; /* Espaçamento interno */
+    transition: top 0.5s; /* Adiciona uma transição suave para a propriedade top */
+}

@@ -161,9 +161,22 @@ def modal():
             
             return redirect(url_for('inventario'))
 
-    conn.close()
+    else:
+        # Inserir na base de cadastro de peça para aparecer da próxima vez
+        cur.execute("INSERT INTO inventario.base_inventario_2023 (codigo, descricao, familia, origem) VALUES (%s, %s, %s, %s)", (codigo, descricao, familia, origem))
 
-    return redirect(url_for('inventario'))
+        # Inserir na base de registros
+        cur.execute("INSERT INTO inventario.registros (codigo, descricao, familia, contagem, data_hora_atual) VALUES (%s, %s, %s, %s, %s)", (codigo, descricao, familia, quantidade, data_atual))
+
+        # Fazer commit das alterações no banco de dados
+        conn.commit()
+        conn.close()
+
+        # Peça adicionada na lista com sucesso
+        flash("Peça adicionada na lista com sucesso", 'sucess')
+        
+        return redirect(url_for('inventario'))
+
 
 
 @app.route('/pecas-fora-da-lista', methods=['GET'])
