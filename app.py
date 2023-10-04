@@ -28,12 +28,6 @@ def login_required(view):
 
     return wrapped_view
 
-
-@app.route('/')
-def index():
-    return render_template('home.html')
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
@@ -59,7 +53,7 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/inventario', methods=['POST','GET'])
+@app.route('/', methods=['POST','GET'])
 @login_required
 def inventario():
     
@@ -79,7 +73,7 @@ def inventario():
         familia = int(session['user_id'])
         data_atual = datetime.now()
         # Salvar dados na tabela registro
-
+        print(contagem)
         cur.execute("INSERT INTO inventario.registros (codigo,descricao,familia,contagem, data_hora_atual) VALUES ('{}','{}',{}, {}, '{}')".format(codigo,descricao,familia,contagem,data_atual))
 
         conn.commit()

@@ -57,10 +57,8 @@
 
 <!-- PAGINAÇÃO -->
 
-<div id="paginacao">
-    <ul class="pagination">
-        <!-- Os botões de página serão inseridos aqui dinamicamente -->
-    </ul>
+<div id="pagination">
+
 </div>
 
 <!-- FILTROS DA TABELA PRINCIPAL -->
@@ -121,14 +119,14 @@
             for (const dado of dadosDaPagina) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${dado[0]}</td>
-                    <td>${dado[1]}</td>
-                    <td>
+                    <td data-label="Código">${dado[0]}</td>
+                    <td data-label="Descrição">${dado[1]}</td>
+                    <td data-label="Contagem">
                         <input type="number" class="valor-input">
                     </td>
-                    <td>${dado[3]}</td>
-                    <td>
-                        <input id="salvar-registro" type="button">
+                    <td data-label="Total">${dado[3]}</td>
+                    <td data-label="Enviar">
+                        <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -140,7 +138,7 @@
 
         // Função para criar os botões de paginação
         function criarBotoesPaginacao() {
-            const paginacao = document.getElementById('paginacao');
+            const paginacao = document.getElementById('pagination');
             paginacao.innerHTML = '';
 
             const totalPaginas = Math.ceil(dadosCompleto.length / itensPorPagina);

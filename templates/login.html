@@ -1,8 +1,17 @@
-{% extends "base.html" %}
-
-{% block title %}Página de Login{% endblock %}
-
-{% block body%}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/load-spinner.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tabela-principal.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/message-sucess.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul class="flash-messages">
@@ -16,9 +25,9 @@
         <div class="logreg-box">
             <div class="form-box login">
                 <div class="form-content">
-                <form form method="POST" action="/login">
+                <form method="post">
                     <div class="logo_login">
-                        <img id="logo_login" src="static\CEMAGL (1) - Copia.png" alt="logo cemag">
+                        <img id="logo_login" src="static\imagens\CEMAGL (1) - Copia.png" alt="logo cemag">
                     </div>
                     <input type="text" name="inventario" id="inventario" value="Inventário" disabled>
                     <h2 style="margin-top: 30px;">Login</h2>
@@ -39,4 +48,5 @@
             </div>
         </div>
     </div>
-{% endblock %}
+</body>
+</html>

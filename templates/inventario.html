@@ -3,7 +3,6 @@
 {% block title %}Página de Filtro{% endblock %}
 
 {% block body %}
-<h2>Filtrar Resultados</h2>
 
 <!-- MENSAGEM -->
 
@@ -18,48 +17,57 @@
 {% endwith %}
 
 <!-- FILTROS -->
-
-<form id="filtro-form">
-    <label for="codigo-filtro">Código:</label>
-    <input type="text" id="codigo-filtro" name="codigo-filtro"><br><br>
-    <label for="descricao-filtro">Descrição:</label>
-    <input type="text" id="descricao-filtro" name="descricao-filtro"><br><br>
-    <input type="submit" value="Filtrar">
-</form>
-
-<!-- BOTÃO PARA ACIONAR MODAL -->
-
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
-
-<!-- MODAL -->
+<main class="principal">
+<div class="table2 table-2" id="tabela-container" style="margin: 40px; margin-left: 20px;">
+    <section class="table__header2">
+        <h2>Filtrar Resultados</h2>
+    </section>
+    <section class="table__body2">
+    <form id="filtro-form">
+        <div class="form-row">
+            <label for="codigo-filtro">Código:</label>
+            <input type="text" class="form-control" id="codigo-filtro" name="codigo-filtro">
+        </div>
+            <label for="descricao-filtro">Descrição:</label>
+            <input type="text" class="form-control" id="descricao-filtro" name="descricao-filtro"><br><br>
+            <div class="filtro_e_fora">
+            <input type="submit" class="botão_filtrar" value="Filtrar">
+            <button type="button" class="fora_lista" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
+            </div>
+        </div>
+        </div>
+    </form>
+    </section>
+</div>
 
 <div id="meuModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Peça fora da lista</h5>
+                <h3 class="modal-title" style="margin-bottom: 8px;">Peça fora da lista</h3>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="form-group col-md-6">
-                            <label for="codigo">Código:</label>
-                            <input type="text" class="form-control" id="codigo" placeholder="Digite o código">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="codigo">Código:</label>
+                                <input type="text" class="form-control" id="codigo" placeholder="Digite o código">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="quantidade">Quantidade:</label>
+                                <input type="number" class="form-control" id="quantidade" placeholder="Digite a quantidade">
+                            </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="descricao">Descrição:</label>
-                            <input type="text" class="form-control" id="descricao" placeholder="Digite a descrição">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="quantidade">Quantidade:</label>
-                            <input type="number" class="form-control" id="quantidade" placeholder="Digite a quantidade">
+                            <input type="text" style="margin-bottom: 15px;" class="form-control" id="descricao" placeholder="Digite a descrição">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary" id="salvarBtn">Salvar</button>
+                    <button type="button" class="botão_filtrar" id="salvarBtn">Salvar</button>
                 </div>
             </form>
         </div>
@@ -67,36 +75,43 @@
 </div>
 
 <!-- TABELA -->
-
-<div id="tabela-container" style="position: relative;">
-    <table id="tabela-principal">
-        <!-- Tabela para exibir os resultados filtrados -->
+<div class="table table-1" id="tabela-container" style="margin: 40px; margin-left: 20px;">
+    <section class="table__header">
+        <h1>Tabela Inventário</h1>
+    </section>
+    <section class="table__body">
+        <table class="responsive-table" id="tabela-principal">
         <thead>
             <tr>
                 <th>Código</th>
                 <th style="width: 500px;">Descrição</th>
                 <th>Contagem</th>
                 <th>Total</th>
-                <th></th>
+                <th>Enviar</th>
             </tr>
         </thead>
         <tbody>
             {% for dado in dados %}
             <tr>
-                <td>{{dado[0]}}</td>
-                <td style="width: 500px;">{{dado[1]}}</td>
-                <td>
+                <td data-label="Código">{{dado[0]}}</td>
+                <td data-label="Descrição" style="width: 500px;">{{dado[1]}}</td>
+                <td data-label="Contagem">
                     <input type="number" class="valor-input">
                 </td>
-                <td>{{dado[3]}}</td>
-                <td>
-                    <input id="salvar-registro" type="button">
+                <td data-label="Total">{{dado[3]}}</td>
+                <td data-label="Enviar">
+                    <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    </section>
+    <div id="pagination">
+            <!-- Os botões de página serão inseridos aqui dinamicamente -->
+    </div>
 </div>
+</main>
 
 <!-- LOADING SPINNER -->
 
@@ -115,12 +130,6 @@
 </div>
 
 <!-- PAGINAÇÃO -->
-
-<div id="paginacao">
-    <ul class="pagination">
-        <!-- Os botões de página serão inseridos aqui dinamicamente -->
-    </ul>
-</div>
 
 <!-- FILTROS DA TABELA PRINCIPAL -->
 
@@ -182,14 +191,14 @@
             for (const dado of dadosDaPagina) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${dado[0]}</td>
-                    <td>${dado[1]}</td>
-                    <td>
+                    <td data-label="Código">${dado[0]}</td>
+                    <td data-label="Descrição">${dado[1]}</td>
+                    <td data-label="Contagem">
                         <input type="number" class="valor-input">
                     </td>
-                    <td>${dado[3]}</td>
-                    <td>
-                        <input id="salvar-registro" type="button">
+                    <td data-label="Total">${dado[3]}</td>
+                    <td data-label="Enviar">
+                        <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -201,13 +210,13 @@
 
         // Função para criar os botões de paginação
         function criarBotoesPaginacao() {
-            const paginacao = document.getElementById('paginacao');
+            const paginacao = document.getElementById('pagination');
             paginacao.innerHTML = '';
 
             const totalPaginas = Math.ceil(dadosCompleto.length / itensPorPagina);
 
             for (let i = 1; i <= totalPaginas; i++) {
-                const button = document.createElement('button');
+                const button = document.createElement('a');
                 button.textContent = i;
                 button.addEventListener('click', function () {
                     paginaAtual = i;
@@ -245,6 +254,7 @@
                 var contagem = linha.querySelector(".valor-input").value;
                 var total = linha.querySelector("td:nth-child(4)").textContent; 
 
+                console.log(contagem);
                 // Verifique se contagem é igual a 0
                 if (contagem === '0') {
                     // Se for igual a 0, exiba um alerta
@@ -281,7 +291,7 @@
 
                     // Envie uma solicitação AJAX para o backend com os dados da linha
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "/inventario", true);
+                    xhr.open("POST", "/", true);
                     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
                     xhr.send(JSON.stringify(dadosLinha));
 
@@ -362,7 +372,7 @@
             axios.post('/modal', data)
                 .then(function (response) {
                     // Lida com a resposta do backend, se necessário
-                    console.log(response.data);
+                    console.log(quantidade);
 
                     // Limpa os campos de entrada
                     codigoInput.value = "";
@@ -370,7 +380,7 @@
                     quantidadeInput.value = "";
 
                     // Fecha o modal após o envio bem-sucedido
-                    $('#meuModal').modal('hide');
+                    $('#meuModal').modal('show');
                     $("#loading-overlay").hide();
                     location.reload();
 
