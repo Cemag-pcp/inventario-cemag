@@ -77,7 +77,7 @@
 <!-- TABELA -->
 <div class="table table-1" id="tabela-container" style="margin: 40px; margin-left: 20px;">
     <section class="table__header">
-        <h1>Tabela Inventário</h1>
+        <h2>Tabela Inventário</h2>
     </section>
     <section class="table__body">
         <table class="responsive-table" id="tabela-principal">
@@ -99,7 +99,7 @@
                     <input type="number" class="valor-input">
                 </td>
                 <td data-label="Total">{{dado[3]}}</td>
-                <td data-label="Enviar">
+                <td>
                     <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                 </td>
             </tr>
@@ -107,9 +107,6 @@
         </tbody>
     </table>
     </section>
-    <div id="pagination">
-            <!-- Os botões de página serão inseridos aqui dinamicamente -->
-    </div>
 </div>
 </main>
 
@@ -164,31 +161,19 @@
     });
 </script>
 
-<!-- PAGINAÇÃO DA TABELA PRINCIPAL -->
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Dados completos da tabela
         const dadosCompleto = {{ dados | tojson | safe }};
-        
-        // Número de itens por página
-        const itensPorPagina = 10;
-        
-        // Página atual
-        let paginaAtual = 1;
-
+      
         // Função para atualizar a tabela com os dados da página atual
         function atualizarTabela() {
             const tabela = document.getElementById('tabela-principal');
             const tbody = tabela.querySelector('tbody');
-            const dadosDaPagina = dadosCompleto.slice(
-                (paginaAtual - 1) * itensPorPagina,
-                paginaAtual * itensPorPagina
-            );
 
             tbody.innerHTML = '';
 
-            for (const dado of dadosDaPagina) {
+            for (const dado of dadosCompleto) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td data-label="Código">${dado[0]}</td>
@@ -197,43 +182,15 @@
                         <input type="number" class="valor-input">
                     </td>
                     <td data-label="Total">${dado[3]}</td>
-                    <td data-label="Enviar">
+                    <td>
                         <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                     </td>
                 `;
                 tbody.appendChild(row);
             }
         }
-
         // Inicializa a tabela com os dados da primeira página
         atualizarTabela();
-
-        // Função para criar os botões de paginação
-        function criarBotoesPaginacao() {
-            const paginacao = document.getElementById('pagination');
-            paginacao.innerHTML = '';
-
-            const totalPaginas = Math.ceil(dadosCompleto.length / itensPorPagina);
-
-            for (let i = 1; i <= totalPaginas; i++) {
-                const button = document.createElement('a');
-                button.textContent = i;
-                button.addEventListener('click', function () {
-                    paginaAtual = i;
-                    atualizarTabela();
-                    criarBotoesPaginacao();
-                });
-
-                if (i === paginaAtual) {
-                    button.classList.add('pagina-atual');
-                }
-
-                paginacao.appendChild(button);
-            }
-        }
-
-        // Inicializa os botões de paginação
-        criarBotoesPaginacao();
     });
 </script>
 
@@ -322,44 +279,62 @@
 <!-- AÇÃO DO BOTÃO DE ENVIAR DENTRO DO MODAL -->
 
 <script>
-    // Captura o botão de salvar
+
+var table = document.getElementById('tabela-principal');
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Captura o botão de salvar dentro do modal
     var salvarBtn = document.getElementById("salvarBtn");
 
-    // Captura os campos de entrada
+    // Captura os campos de entrada dentro do modal
     var codigoInput = document.getElementById("codigo");
     var descricaoInput = document.getElementById("descricao");
     var quantidadeInput = document.getElementById("quantidade");
 
-    // Define o evento de clique no botão de salvar
-    salvarBtn.addEventListener("click", function() {
+    // Define o evento de clique no botão de salvar dentro do modal
+    salvarBtn.addEventListener("click", function () {
+        // Captura os valores dos campos de código, descrição e quantidade
+        var codigo = codigoInput.value;
+        var descricao = descricaoInput.value;
+        var quantidade = quantidadeInput.value;
 
-        if (quantidadeInput === '0') {
+        // Loop pelas linhas da tabela (começando pela segunda linha)
+        for (var i = 1; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            var codigoTabela = row.cells[0].textContent;
+            var descricaoTabela = row.cells[1].textContent;
+
+            // Verifica se o código e a descrição já existem na tabela
+            if (codigo === codigoTabela && descricao === descricaoTabela) {
+                // Se existirem, exibe um alerta
+                alert("Item já cadastrado!");
+                return; // Impede o envio dos dados para o servidor
+            }
+        }
+
+        if (quantidade === '0') { // Corrigido aqui: quantidadeInput.value deve ser quantidade
 
             $('#success-danger').html('Informe um valor válido diferente de zero').show();
 
             // Defina um temporizador para ocultar a mensagem após 5 segundos
             setTimeout(function() {
                 $('#success-danger').hide();
-            }, 5000); // 5000 milissegundos (5 segundos)
+            }, 2000); // 5000 milissegundos (5 segundos)
 
-        } else if (quantidadeInput === '') {
+        } else if (quantidade === '') {
             // Verifique se contagem está em branco
             // Após a ação bem-sucedida
             $('#success-danger').html('Informe um valor válido').show();
 
             // Defina um temporizador para ocultar a mensagem após 5 segundos
             setTimeout(function() {
-            $('#success-danger').hide();
-            }, 5000); // 5000 milissegundos (5 segundos)
+                $('#success-danger').hide();
+            }, 2000); // 5000 milissegundos (5 segundos)
 
         } else {
             // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
                 
             $("#loading-overlay").show();
-            // Captura os valores dos campos de código e quantidade
-            var codigo = codigoInput.value;
-            var descricao = descricaoInput.value;
-            var quantidade = quantidadeInput.value;
 
             // Crie um objeto com os dados que você deseja enviar ao backend
             var data = {
@@ -380,7 +355,7 @@
                     quantidadeInput.value = "";
 
                     // Fecha o modal após o envio bem-sucedido
-                    $('#meuModal').modal('show');
+                    $('#meuModal').modal('hide'); // Modificado aqui: use 'hide' para fechar o modal
                     $("#loading-overlay").hide();
                     location.reload();
 
@@ -392,8 +367,9 @@
                     $("#loading-overlay").hide();
                 });
             }
-        
-    });
+        });
+});
+
 </script>
 
 

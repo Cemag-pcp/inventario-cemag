@@ -57,10 +57,6 @@
 
 <!-- PAGINAÇÃO -->
 
-<div id="pagination">
-
-</div>
-
 <!-- FILTROS DA TABELA PRINCIPAL -->
 
 <script>
@@ -98,25 +94,15 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Dados completos da tabela
         const dadosCompleto = {{ dados | tojson | safe }};
-        
-        // Número de itens por página
-        const itensPorPagina = 10;
-        
-        // Página atual
-        let paginaAtual = 1;
 
         // Função para atualizar a tabela com os dados da página atual
         function atualizarTabela() {
             const tabela = document.getElementById('tabela-peca-fora-da-lista');
             const tbody = tabela.querySelector('tbody');
-            const dadosDaPagina = dadosCompleto.slice(
-                (paginaAtual - 1) * itensPorPagina,
-                paginaAtual * itensPorPagina
-            );
 
             tbody.innerHTML = '';
 
-            for (const dado of dadosDaPagina) {
+            for (const dado of dadosCompleto) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td data-label="Código">${dado[0]}</td>
@@ -125,7 +111,7 @@
                         <input type="number" class="valor-input">
                     </td>
                     <td data-label="Total">${dado[3]}</td>
-                    <td data-label="Enviar">
+                    <td>
                         <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                     </td>
                 `;
@@ -135,33 +121,6 @@
 
         // Inicializa a tabela com os dados da primeira página
         atualizarTabela();
-
-        // Função para criar os botões de paginação
-        function criarBotoesPaginacao() {
-            const paginacao = document.getElementById('pagination');
-            paginacao.innerHTML = '';
-
-            const totalPaginas = Math.ceil(dadosCompleto.length / itensPorPagina);
-
-            for (let i = 1; i <= totalPaginas; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.addEventListener('click', function () {
-                    paginaAtual = i;
-                    atualizarTabela();
-                    criarBotoesPaginacao();
-                });
-
-                if (i === paginaAtual) {
-                    button.classList.add('pagina-atual');
-                }
-
-                paginacao.appendChild(button);
-            }
-        }
-
-        // Inicializa os botões de paginação
-        criarBotoesPaginacao();
     });
 </script>
 
