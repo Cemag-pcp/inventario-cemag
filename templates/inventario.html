@@ -10,7 +10,7 @@
 {% if messages %}
 <ul class="flash-messages">
     {% for message in messages %}
-    <li class="flash-message">{{ message }}</li>
+    <li class="flash-message" style="font-weight: 600;">{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}
@@ -231,7 +231,7 @@
                     // Defina um temporizador para ocultar a mensagem após 5 segundos
                     setTimeout(function() {
                     $('#success-danger').hide();
-                    }, 5000); // 5000 milissegundos (5 segundos)
+                    }, 3000); // 5000 milissegundos (5 segundos)
 
                 } else {
                     // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
@@ -261,12 +261,12 @@
                             $("#loading-overlay").hide();
 
                             // Após a ação bem-sucedida
-                            $('#success-message').html('Registro salvo com sucesso').show();
+                            $('#success-message').html('Registro salvo com sucesso').css('font-weight', '600').show();
 
                             // Defina um temporizador para ocultar a mensagem após 5 segundos
                             setTimeout(function() {
                             $('#success-message').hide();
-                            }, 5000); // 5000 milissegundos (5 segundos)
+                            }, 3000); // 5000 milissegundos (5 segundos)
 
                         }
                     };
