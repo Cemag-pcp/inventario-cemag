@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}Página de Filtro{% endblock %}
+
+{% block body %}
+
+<!-- MENSAGEM -->
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="flash-messages">
+    {% for message in messages %}
+    <li class="flash-message">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<!-- FILTROS -->
+<main class="principal">
+<div class="table2 table-2" id="tabela-container" style="margin: 40px; margin-left: 20px;">
+    <section class="table__header2">
+        <h2>Filtrar Resultados</h2>
+    </section>
+    <section class="table__body2">
+    <form id="filtro-form">
+        <div class="form-row">
+            <label for="codigo-filtro">Código:</label>
+            <input type="text" class="form-control" id="codigo-filtro" name="codigo-filtro">
+        </div>
+            <label for="descricao-filtro">Descrição:</label>
+            <input type="text" class="form-control" id="descricao-filtro" name="descricao-filtro"><br><br>
+            <div class="filtro_e_fora">
+            <input type="submit" class="botão_filtrar" value="Filtrar">
+            <button type="button" class="fora_lista" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
+            </div>
+        </div>
+        </div>
+    </form>
+    </section>
+</div>
+
+<div id="meuModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" style="margin-bottom: 8px;">Peça fora da lista</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="codigo">Código:</label>
+                                <input type="text" class="form-control" id="codigo" placeholder="Digite o código">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="quantidade">Quantidade:</label>
+                                <input type="number" class="form-control" id="quantidade" placeholder="Digite a quantidade">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="descricao">Descrição:</label>
+                            <input type="text" style="margin-bottom: 15px;" class="form-control" id="descricao" placeholder="Digite a descrição">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="botão_filtrar" id="salvarBtn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- TABELA -->
+<div class="table table-1" id="tabela-container" style="margin: 40px; margin-left: 20px;">
+    <section class="table__header">
+        <h2>Tabela Inventário</h2>
+    </section>
+    <section class="table__body">
+        <table class="responsive-table" id="tabela-principal">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th style="width: 500px;">Descrição</th>
+                <th>Contagem</th>
+                <th>Total</th>
+                <th>Enviar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dado in dados %}
+            <tr>
+                <td data-label="Código">{{dado[0]}}</td>
+                <td data-label="Descrição" style="width: 500px;">{{dado[1]}}</td>
+                <td data-label="Contagem">
+                    <input type="number" class="valor-input">
+                </td>
+                <td data-label="Total">{{dado[3]}}</td>
+                <td>
+                    <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </section>
+</div>
+</main>
+
+<!-- LOADING SPINNER -->
+
+<div id="loading-overlay" style="display: none;">
+    <div id="loading-spinner"></div>
+</div>
+
+<!-- MENSAGEM DE SUCESSO -->
+<div id="success-message" class="alert alert-success top-message slide-in" style="display: none;">
+    Ação bem-sucedida! Sua mensagem de sucesso aqui.
+</div>
+
+<!-- MENSAGEM DE ERRO -->
+<div id="success-danger" class="alert alert-danger top-danger slide-in" style="display: none;">
+    Erro.
+</div>
+
+<!-- PAGINAÇÃO -->
+
+<!-- FILTROS DA TABELA PRINCIPAL -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Captura o formulário e a tabela
+        const form = document.getElementById('filtro-form');
+        const table = document.getElementById('tabela-principal');
+
+        // Adiciona um ouvinte de evento para o envio do formulário
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // Impede o envio do formulário padrão
+
+            // Captura os valores dos campos de filtro
+            const campo1Value = document.getElementById('codigo-filtro').value.toLowerCase();
+            const campo2Value = document.getElementById('descricao-filtro').value.toLowerCase();
+
+            // Loop pelas linhas da tabela (começando pela segunda linha)
+            for (let i = 1; i < table.rows.length; i++) {
+                const row = table.rows[i];
+                const codigo = row.cells[0].textContent.toLowerCase();
+                const descricao = row.cells[1].textContent.toLowerCase();
+
+                // Verifica se os valores da linha correspondem aos filtros
+                if (codigo.includes(campo1Value) && descricao.includes(campo2Value)) {
+                    row.style.display = ''; // Exibe a linha
+                } else {
+                    row.style.display = 'none'; // Oculta a linha
+                }
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Dados completos da tabela
+        const dadosCompleto = {{ dados | tojson | safe }};
+      
+        // Função para atualizar a tabela com os dados da página atual
+        function atualizarTabela() {
+            const tabela = document.getElementById('tabela-principal');
+            const tbody = tabela.querySelector('tbody');
+
+            tbody.innerHTML = '';
+
+            for (const dado of dadosCompleto) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td data-label="Código">${dado[0]}</td>
+                    <td data-label="Descrição">${dado[1]}</td>
+                    <td data-label="Contagem">
+                        <input type="number" class="valor-input">
+                    </td>
+                    <td data-label="Total">${dado[3]}</td>
+                    <td>
+                        <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+        // Inicializa a tabela com os dados da primeira página
+        atualizarTabela();
+    });
+</script>
+
+<!-- AÇÃO DO BOTÃO DE ENVIAR DA TABELA -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Adicione um evento de clique a todos os botões "Salvar"
+        var salvarBotoes = document.querySelectorAll("#salvar-registro");
+        salvarBotoes.forEach(function (botao) {
+            botao.addEventListener("click", function () {
+                
+                // Encontre a linha pai do botão clicado
+                var linha = botao.closest("tr");
+                // Capture os dados da linha
+                var codigo = linha.querySelector("td:nth-child(1)").textContent;
+                var descricao = linha.querySelector("td:nth-child(2)").textContent;
+                var contagem = linha.querySelector(".valor-input").value;
+                var total = linha.querySelector("td:nth-child(4)").textContent; 
+
+                console.log(contagem);
+                // Verifique se contagem é igual a 0
+                if (contagem === '0') {
+                    // Se for igual a 0, exiba um alerta
+                    // Após a ação bem-sucedida
+                    $('#success-danger').html('Informe um valor válido diferente de zero').show();
+
+                    // Defina um temporizador para ocultar a mensagem após 5 segundos
+                    setTimeout(function() {
+                    $('#success-danger').hide();
+                    }, 5000); // 5000 milissegundos (5 segundos)
+
+                } else if (contagem === '') {
+                    // Verifique se contagem está em branco
+                    // Após a ação bem-sucedida
+                    $('#success-danger').html('Informe um valor válido').show();
+
+                    // Defina um temporizador para ocultar a mensagem após 5 segundos
+                    setTimeout(function() {
+                    $('#success-danger').hide();
+                    }, 5000); // 5000 milissegundos (5 segundos)
+
+                } else {
+                    // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
+                    
+                    $("#loading-overlay").show();
+
+                    // Crie um objeto com os dados da linha
+                    var dadosLinha = {
+                        codigo: codigo,
+                        descricao: descricao,
+                        contagem: contagem,
+                        total: total
+                    };
+
+                    // Envie uma solicitação AJAX para o backend com os dados da linha
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/", true);
+                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    xhr.send(JSON.stringify(dadosLinha));
+
+                    // Lide com a resposta do servidor, se necessário
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            // Recarregue a página após salvar os dados
+                            location.reload();
+
+                            $("#loading-overlay").hide();
+
+                            // Após a ação bem-sucedida
+                            $('#success-message').html('Registro salvo com sucesso').show();
+
+                            // Defina um temporizador para ocultar a mensagem após 5 segundos
+                            setTimeout(function() {
+                            $('#success-message').hide();
+                            }, 5000); // 5000 milissegundos (5 segundos)
+
+                        }
+                    };
+                }
+            });
+        });
+    });
+</script>
+
+<!-- AÇÃO DO BOTÃO DE ENVIAR DENTRO DO MODAL -->
+
+<script>
+
+var table = document.getElementById('tabela-principal');
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Captura o botão de salvar dentro do modal
+    var salvarBtn = document.getElementById("salvarBtn");
+
+    // Captura os campos de entrada dentro do modal
+    var codigoInput = document.getElementById("codigo");
+    var descricaoInput = document.getElementById("descricao");
+    var quantidadeInput = document.getElementById("quantidade");
+
+    // Define o evento de clique no botão de salvar dentro do modal
+    salvarBtn.addEventListener("click", function () {
+        // Captura os valores dos campos de código, descrição e quantidade
+        var codigo = codigoInput.value;
+        var descricao = descricaoInput.value;
+        var quantidade = quantidadeInput.value;
+
+        // Loop pelas linhas da tabela (começando pela segunda linha)
+        for (var i = 1; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            var codigoTabela = row.cells[0].textContent;
+            var descricaoTabela = row.cells[1].textContent;
+
+            // Verifica se o código e a descrição já existem na tabela
+            if (codigo === codigoTabela && descricao === descricaoTabela) {
+                // Se existirem, exibe um alerta
+                alert("Item já cadastrado!");
+                return; // Impede o envio dos dados para o servidor
+            }
+        }
+
+        if (quantidade === '0') { // Corrigido aqui: quantidadeInput.value deve ser quantidade
+
+            $('#success-danger').html('Informe um valor válido diferente de zero').show();
+
+            // Defina um temporizador para ocultar a mensagem após 5 segundos
+            setTimeout(function() {
+                $('#success-danger').hide();
+            }, 2000); // 5000 milissegundos (5 segundos)
+
+        } else if (quantidade === '') {
+            // Verifique se contagem está em branco
+            // Após a ação bem-sucedida
+            $('#success-danger').html('Informe um valor válido').show();
+
+            // Defina um temporizador para ocultar a mensagem após 5 segundos
+            setTimeout(function() {
+                $('#success-danger').hide();
+            }, 2000); // 5000 milissegundos (5 segundos)
+
+        } else {
+            // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
+                
+            $("#loading-overlay").show();
+
+            // Crie um objeto com os dados que você deseja enviar ao backend
+            var data = {
+                codigo: codigo,
+                descricao: descricao,
+                quantidade: quantidade
+            };
+
+            // Use o Axios para fazer uma solicitação POST para sua rota no backend
+            axios.post('/modal', data)
+                .then(function (response) {
+                    // Lida com a resposta do backend, se necessário
+                    console.log(quantidade);
+
+                    // Limpa os campos de entrada
+                    codigoInput.value = "";
+                    descricaoInput.value = "";
+                    quantidadeInput.value = "";
+
+                    // Fecha o modal após o envio bem-sucedido
+                    $('#meuModal').modal('hide'); // Modificado aqui: use 'hide' para fechar o modal
+                    $("#loading-overlay").hide();
+                    location.reload();
+
+                })
+
+                .catch(function (error) {
+                    // Lida com erros, se houver
+                    console.error(error);
+                    $("#loading-overlay").hide();
+                });
+            }
+        });
+});
+
+</script>
+
+
+{% endblock %}

@@ -4,4 +4,4 @@ Tutorial:
 
 2. Os registros são guardados na base: inventario.registros.
 
-3. E uma api alimenta a planilha com os registros, a api atualiza toda vez que a planilha é atualizada (F5). Link da planilha: https://docs.google.com/spreadsheets/d/1P_9mmPVTVYlQh0EBYBgzadkfNOvWvCUGX536EraZ4HE/edit#gid=0
+3. Uma API alimenta a planilha com os registros, a api atualiza toda vez que a planilha é atualizada (F5). Link da planilha: https://docs.google.com/spreadsheets/d/1P_9mmPVTVYlQh0EBYBgzadkfNOvWvCUGX536EraZ4HE/edit#gid=0

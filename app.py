@@ -8,6 +8,15 @@ from datetime import datetime
 import psycopg2  # pip install psycopg2
 import psycopg2.extras
 
+import cachetools
+from cachetools import Cache
+
+import gspread
+
+import pandas as pd
+
+filename = "service_account.json"
+
 # DB_HOST = "localhost"
 DB_HOST = "database-2.cdcogkfzajf0.us-east-1.rds.amazonaws.com"
 DB_NAME = "postgres"
@@ -16,6 +25,17 @@ DB_PASS = "15512332"
 
 app = Flask(__name__)
 app.secret_key = 'app_inventario'  # Configure uma chave secreta adequada
+
+cache_recontagem = cachetools.LRUCache(maxsize=128)
+
+def resetar_cache(cache):
+
+    """
+    Função para limpar caches
+    """
+
+    cache.clear()
+
 
 
 def login_required(view):
@@ -27,6 +47,7 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -172,7 +193,6 @@ def modal():
         return redirect(url_for('inventario'))
 
 
-
 @app.route('/pecas-fora-da-lista', methods=['GET'])
 @login_required
 def pecas_fora_da_lista():
@@ -192,6 +212,45 @@ def pecas_fora_da_lista():
     dados = cur.fetchall()
 
     return render_template('pecas-fora-da-lista.html', dados=dados)
+
+
+@cachetools.cached(cache_recontagem)
+def tabela_recontagem():
+
+    """
+    Função para acessar google sheets via api e
+    buscar dados da base de recontagem.
+    """
+
+    sheet_id = '1P_9mmPVTVYlQh0EBYBgzadkfNOvWvCUGX536EraZ4HE'
+    worksheet1 = 'Base recontagem'
+
+    sa = gspread.service_account(filename)
+    sh = sa.open_by_key(sheet_id)
+
+    wks1 = sh.worksheet(worksheet1)
+
+    headers = wks1.row_values(1)
+
+    base = wks1.get()
+    base = pd.DataFrame(base)
+    # base = base.iloc[:,:23]
+    base_carretas = base.set_axis(headers, axis=1)[1:]
+    base_carretas['PED_PREVISAOEMISSAODOC'] = pd.to_datetime(base_carretas['PED_PREVISAOEMISSAODOC'], format="%d/%M/%Y", errors='ignore')
+
+    return base_carretas
+
+
+@app.route("/recontagem")
+def recontagem():
+
+    """
+    Rota para recontagem de itens
+    """
+
+    
+
+    return 'sucess'
 
 
 if __name__ == '__main__':
