@@ -97,10 +97,35 @@ def inventario():
         print(contagem)
         cur.execute("INSERT INTO inventario.registros (codigo,descricao,familia,contagem, data_hora_atual) VALUES ('{}','{}',{}, {}, '{}')".format(codigo,descricao,familia,contagem,data_atual))
 
+        cur.execute("SELECT sum(contagem) FROM inventario.registros WHERE codigo = '{}' AND familia = '{}' GROUP BY codigo,familia".format(codigo,familia))
+        contagem = cur.fetchall()
+
+        contagem = contagem[0][0]
+
+        try:
+
+            cur.execute("SELECT saldo FROM inventario.base_inventario_2023 WHERE codigo = '{}' AND familia = {} AND origem = 'Innovaro' AND curva_abc = 'A'".format(codigo,familia))
+
+            saldo = cur.fetchall()
+
+            saldo_value = saldo[0][0]
+
+        except:
+            saldo = []
+
         conn.commit()
         
         cur.close()
         conn.close()
+
+        if len(saldo) > 0:
+
+            if contagem != saldo_value:
+                return jsonify(codigo)
+            else: 
+                print("Não precisa de recontagem")
+        else: 
+            print("Não precisa de recontagem")
 
         return redirect(url_for('inventario'))
     
@@ -125,6 +150,43 @@ def inventario():
 
     return render_template('inventario.html', dados=dados)
 
+@app.route('/modal_recontagem', methods=['POST'])
+@login_required
+def modal_recontagem():
+        
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
+                        password=DB_PASS, host=DB_HOST)
+    cur = conn.cursor()
+
+    # Obtenha os dados enviados no corpo da solicitação POST
+    dados_recebidos = request.get_json()
+    print(dados_recebidos)
+    
+    # Faça o processamento necessário com os dados recebidos
+    codigo_recontagem = dados_recebidos.get('codigoRecontagem')
+    recontagem = dados_recebidos.get('recontagem')
+    familia = int(session['user_id'])
+    # Salvar dados na tabela registro
+
+    cur.execute("SELECT COUNT(*) FROM inventario.registros WHERE codigo = '{}' AND familia = {}".format(codigo_recontagem,familia))
+
+    count_linhas = cur.fetchall()
+    print(count_linhas)
+
+    count_linhas = count_linhas[0][0]
+
+    print(count_linhas)
+
+    recontagem = float(recontagem) / count_linhas
+
+    print(recontagem)
+
+    cur.execute("UPDATE inventario.registros SET recontagem = {} WHERE codigo = '{}' AND familia = {}".format(recontagem,codigo_recontagem,familia))
+
+    conn.commit()
+    
+    cur.close()
+    conn.close()
 
 @app.route('/logout')
 @login_required

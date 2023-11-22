@@ -53,7 +53,7 @@
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="codigo">Código:</label>
-                                <input type="text" class="form-control" id="codigo" placeholder="Digite o código">
+                                <input type="number" class="form-control" id="codigo" placeholder="Digite o código">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="quantidade">Quantidade:</label>
@@ -68,6 +68,34 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="botão_filtrar" id="salvarBtn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalRecontagem" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin-bottom: 8px;">Faça a recontagem das peças e insira novamente o valor</h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="descricao">Código:</label>
+                            <input type="number" style="margin-bottom: 15px;" class="form-control" id="codigoRecontagem" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="descricao">Recontagem:</label>
+                            <input type="number" style="margin-bottom: 15px;" class="form-control" id="recontagem" placeholder="Digite o número de peças">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="botão_filtrar" id="salvarRecontagem">Salvar</button>
                 </div>
             </form>
         </div>
@@ -211,7 +239,6 @@
                 var contagem = linha.querySelector(".valor-input").value;
                 var total = linha.querySelector("td:nth-child(4)").textContent; 
 
-                console.log(contagem);
                 // Verifique se contagem é igual a 0
                 if (contagem === '0') {
                     // Se for igual a 0, exiba um alerta
@@ -233,8 +260,9 @@
                     $('#success-danger').hide();
                     }, 5000); // 5000 milissegundos (5 segundos)
 
-                } else {
-                    // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
+                }
+                 else {
+                    // $('#modalRecontagem').modal('show');
                     
                     $("#loading-overlay").show();
 
@@ -246,34 +274,105 @@
                         total: total
                     };
 
-                    // Envie uma solicitação AJAX para o backend com os dados da linha
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "/", true);
-                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-                    xhr.send(JSON.stringify(dadosLinha));
-
-                    // Lide com a resposta do servidor, se necessário
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4 && xhr.status === 200) {
-                            // Recarregue a página após salvar os dados
-                            location.reload();
+                    $.ajax({
+                        type: "POST",
+                        url: "/",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(dadosLinha),
+                        dataType: "json",
+                        success: function(codigo) {
+                            // Manipule a resposta recebida do servidor aqui
 
                             $("#loading-overlay").hide();
+                            console.log("Resposta do servidor:", codigo);
 
-                            // Após a ação bem-sucedida
+                            if (codigo !== undefined && codigo !== null) {
+                                // 'familia' está definido, então você pode acessá-lo com segurança
+                                $('#modalRecontagem').modal('show');
+
+                                // Use o evento 'shown.bs.modal' para garantir que o modal esteja totalmente aberto
+                                $('#modalRecontagem').on('shown.bs.modal', function () {
+                                    $('body').addClass('modal-open');
+                                    $('#codigoRecontagem').val(codigo);
+                                });
+
+                                $('#modalGanhar').on('click', '.close', function () {
+                                    $('#modalGanhar').modal('hide');
+                                    $('body').removeClass('modal-open');
+                                    location.reload();
+                                });
+                                console.log("Código recebido:", codigo);
+                                }
+                            
+                            // $('#success-message').html('Registro salvo com sucesso').show();
+
+                            // setTimeout(function() {
+                            // $('#success-message').hide();
+                            // }, 5000); // 5000 milissegundos (5 segundos)
+                        },
+                        error: function(error) {
+                            console.error("Erro na solicitação:", error);
                             $('#success-message').html('Registro salvo com sucesso').show();
 
-                            // Defina um temporizador para ocultar a mensagem após 5 segundos
                             setTimeout(function() {
                             $('#success-message').hide();
-                            }, 5000); // 5000 milissegundos (5 segundos)
-
+                            }, 1000); // 1000 milissegundos (1 segundos)
+                            location.reload();
                         }
-                    };
+                    });
+
+                    // // Envie uma solicitação AJAX para o backend com os dados da linha
+                    // var xhr = new XMLHttpRequest();
+                    // xhr.open("POST", "/", true);
+                    // xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    // xhr.send(JSON.stringify(dadosLinha));
+
+                    // // Lide com a resposta do servidor, se necessário
+                    // xhr.onreadystatechange = function () {
+                    //     if (xhr.readyState === 4 && xhr.status === 200) {
+                    //         // Recarregue a página após salvar os dados
+                            
+
+                    //     }
+                    // };
                 }
             });
         });
     });
+
+    $(document).ready(function () {
+    // Adicione um manipulador de eventos ao botão "salvarRecontagem"
+    $("#salvarRecontagem").on("click", function () {
+        // Obtenha os valores dos campos de input
+        $("#loading-overlay").show();
+        var codigoRecontagem = $("#codigoRecontagem").val();
+        var recontagem = $("#recontagem").val();
+
+        // Crie um objeto com os dados a serem enviados
+        var dadosRecontagem = {
+            codigoRecontagem: codigoRecontagem,
+            recontagem: recontagem
+        };
+        // Faça a solicitação AJAX para o Flask
+        $.ajax({
+            type: "POST",
+            url: "/modal_recontagem",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(dadosRecontagem),
+            dataType: "json",
+            success: function (resposta) {
+                // Manipule a resposta do servidor aqui, se necessário
+                console.log("Resposta do servidor modal_recontagem:", resposta);
+                $("#loading-overlay").hide();
+                // Aqui você pode realizar ações adicionais com base na resposta, se necessário
+            },
+            error: function (erro) {
+                console.error("Erro na solicitação:", erro);
+                $("#loading-overlay").hide();
+            }
+        });
+    });
+});
 </script>
 
 <!-- AÇÃO DO BOTÃO DE ENVIAR DENTRO DO MODAL -->
@@ -331,6 +430,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 $('#success-danger').hide();
             }, 2000); // 5000 milissegundos (5 segundos)
 
+        } else if (codigo === '' || codigo === '0') {
+            alert("Informe um valor válido para o código");
+            return; // Impede o envio dos dados para o servidor
         } else {
             // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
                 

@@ -110,7 +110,7 @@ div.table {
 
 div.table2 {
     width: 45vw;
-    height: 40vh;
+    height: 500px;
     margin-bottom: 0px;
     margin-right: 0;
     background-color: #fff5;
@@ -228,7 +228,7 @@ tbody tr.hide td i {
 @media (max-width:1000px) {
     div.table {
         width: 90vw;
-        height: 60vh;
+        height: 500px;
         margin-bottom: 10px;
         background-color: #fff5;
         box-shadow: 0 0.4rem 0.8rem #0005;
@@ -238,7 +238,7 @@ tbody tr.hide td i {
 
     div.table2 {
         width: 90vw;
-        height: 60vh;
+        height: 500px;
         margin-bottom: 10px;
         background-color: #fff5;
         box-shadow: 0 0.4rem 0.8rem #0005;
