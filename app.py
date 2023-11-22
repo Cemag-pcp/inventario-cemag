@@ -168,6 +168,10 @@ def modal_recontagem():
     familia = int(session['user_id'])
     # Salvar dados na tabela registro
 
+    codigo_recontagem = '030317 - LONGARINA M17 CHASSI CBHM/CBH (Un)'
+
+    codigo_recontagem = codigo_recontagem.split()[0]
+
     cur.execute("SELECT COUNT(*) FROM inventario.registros WHERE codigo = '{}' AND familia = {}".format(codigo_recontagem,familia))
 
     count_linhas = cur.fetchall()
@@ -187,6 +191,8 @@ def modal_recontagem():
     
     cur.close()
     conn.close()
+
+    return redirect(url_for('inventario'))
 
 @app.route('/logout')
 @login_required

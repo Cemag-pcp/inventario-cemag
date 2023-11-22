@@ -85,11 +85,15 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="form-group col-md-6">
-                            <label for="descricao">Código:</label>
-                            <input type="number" style="margin-bottom: 15px;" class="form-control" id="codigoRecontagem" readonly>
+                            <label>Código:</label>
+                            <input type="text" style="margin-bottom: 15px;" class="form-control" id="codigoRecontagem" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="descricao">Recontagem:</label>
+                            <label>Valor da ultima contagem:</label>
+                            <input type="text" style="margin-bottom: 15px;" class="form-control" id="valorUltimaRecontagem" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Recontagem:</label>
                             <input type="number" style="margin-bottom: 15px;" class="form-control" id="recontagem" placeholder="Digite o número de peças">
                         </div>
                     </div>
@@ -293,7 +297,9 @@
                                 // Use o evento 'shown.bs.modal' para garantir que o modal esteja totalmente aberto
                                 $('#modalRecontagem').on('shown.bs.modal', function () {
                                     $('body').addClass('modal-open');
-                                    $('#codigoRecontagem').val(codigo);
+                                    $('#codigoRecontagem').val(codigo + " - " + descricao);
+                                    console.log(codigo + " - " + descricao)
+                                    $('#valorUltimaRecontagem').val(parseFloat(total) + parseFloat(contagem));
                                 });
 
                                 $('#modalGanhar').on('click', '.close', function () {
@@ -363,11 +369,13 @@
             success: function (resposta) {
                 // Manipule a resposta do servidor aqui, se necessário
                 console.log("Resposta do servidor modal_recontagem:", resposta);
-                $("#loading-overlay").hide();
                 // Aqui você pode realizar ações adicionais com base na resposta, se necessário
+                location.reload();
+                $("#loading-overlay").hide();
             },
             error: function (erro) {
                 console.error("Erro na solicitação:", erro);
+                location.reload();
                 $("#loading-overlay").hide();
             }
         });
