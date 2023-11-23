@@ -135,7 +135,7 @@ def inventario():
 
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
                             password=DB_PASS, host=DB_HOST)
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     cur.execute(
         """ SELECT
@@ -153,6 +153,64 @@ def inventario():
         """.format(user_almox))
 
     dados = cur.fetchall()
+
+    cur.execute(
+            """
+                SELECT
+                    T5.*,
+                    T6.data_mais_antiga,
+                    CASE
+                        WHEN T5.contagem_agrupada != T5.saldo AND T5.recontagem_agrupada IS NULL AND T5.curva_abc = 'A' THEN 'Recontar'
+                        ELSE ''
+                    END AS necessidade_recontagem
+                FROM (
+                    SELECT DISTINCT T3.*, T4.nome_almoxarifado
+                    FROM (
+                        SELECT
+                            T1.familia,
+                            T1.codigo,
+                            T1.descricao,
+                            T2.etapa,
+                            T2.origem,
+                            T2.curva_abc,
+                            T2.saldo,
+                            T2.custo,
+                            T2.custo_medio,
+                            ROUND(SUM(T1.contagem)) AS contagem_agrupada,
+                            ROUND(SUM(T1.recontagem)) AS recontagem_agrupada
+                        FROM inventario.registros AS T1
+                        LEFT JOIN inventario.base_inventario_2023 AS T2
+                            ON T1.codigo = T2.codigo AND T1.familia = T2.familia
+                        GROUP BY
+                            T1.familia,
+                            T1.codigo,
+                            T1.descricao,
+                            T2.etapa,
+                            T2.origem,
+                            T2.curva_abc,
+                            T2.saldo,
+                            T2.custo,
+                            T2.custo_medio
+                    ) AS T3
+                    LEFT JOIN inventario.familias AS T4
+                        ON T3.familia = T4.id_lista
+                ) AS T5
+                LEFT JOIN (
+                    SELECT codigo, familia, MIN(data_hora_atual) AS data_mais_antiga
+                    FROM inventario.registros
+                    GROUP BY codigo, familia
+                ) AS T6 ON T5.codigo = T6.codigo AND T5.familia = T6.familia
+                ORDER BY T6.data_mais_antiga;
+                """)
+    
+    necessidade_recontagem = cur.fetchall()
+
+    df_dados = pd.DataFrame(dados)
+    df_necessidade_recontagem = pd.DataFrame(necessidade_recontagem)
+
+    df_merge = df_dados.merge(df_necessidade_recontagem[['codigo','familia','necessidade_recontagem']], how='left', on=['codigo', 'familia'])
+
+    dados = df_merge.values.tolist()
 
     return render_template('inventario.html', dados=dados)
 

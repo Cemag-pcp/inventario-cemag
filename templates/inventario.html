@@ -110,6 +110,8 @@
 <div class="table table-1" id="tabela-container" style="margin: 40px; margin-left: 20px;">
     <section class="table__header">
         <h2>Tabela Inventário</h2>
+        <label>Necessidade de recontar</label>
+        <input type="checkbox" id="checkboxRecontar">
     </section>
     <section class="table__body">
         <table class="responsive-table" id="tabela-principal">
@@ -130,7 +132,17 @@
                 <td data-label="Contagem">
                     <input type="number" class="valor-input">
                 </td>
-                <td data-label="Total">{{dado[3]}}</td>
+                
+                <!-- <td data-label="Total">{{dado[3]}}</td> -->
+                
+                <td data-label="Total">
+                    {% if dado[4] == 'Recontar' %}
+                        {{ dado[3] }} <i class="fas fa-exclamation-triangle" style="color: red;"></i>
+                    {% else %}
+                        {{ dado[3] }}
+                    {% endif %}
+                </td>
+
                 <td>
                     <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                 </td>
@@ -207,17 +219,30 @@
 
             for (const dado of dadosCompleto) {
                 const row = document.createElement('tr');
+                const totalCell = document.createElement('td');
+                totalCell.setAttribute('data-label', 'Total');
+
+                if (dado[4] === 'Recontar') {
+                    totalCell.innerHTML = `${dado[3]} <i class="fas fa-exclamation-triangle" style="color: red;"></i>`;
+                } else {
+                    totalCell.textContent = dado[3];
+                }
+
                 row.innerHTML = `
                     <td data-label="Código">${dado[0]}</td>
                     <td data-label="Descrição">${dado[1]}</td>
                     <td data-label="Contagem">
                         <input type="number" class="valor-input">
-                    </td>
-                    <td data-label="Total">${dado[3]}</td>
-                    <td>
-                        <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
-                    </td>
+                    </td>`;
+                
+                row.appendChild(totalCell);
+
+                const salvarCell = document.createElement('td');
+                salvarCell.innerHTML = `
+                    <input id="salvar-registro" class="botão_enviar" value="Enviar" type="button">
                 `;
+                row.appendChild(salvarCell);
+
                 tbody.appendChild(row);
             }
         }
