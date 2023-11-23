@@ -15,6 +15,8 @@ import gspread
 
 import pandas as pd
 
+# flask run -h localhost -p 3000
+
 filename = "service_account.json"
 
 # DB_HOST = "localhost"
@@ -136,13 +138,17 @@ def inventario():
     cur = conn.cursor()
 
     cur.execute(
-        """ SELECT  t1.codigo,
-                    t1.descricao, 
-                    t1.familia, 
-                    ROUND(COALESCE(SUM(t2.contagem)::numeric, 0), 2) AS total_contagem
+        """ SELECT
+                t1.codigo,
+                t1.descricao,
+                t1.familia,
+                CASE 
+                    WHEN COALESCE(SUM(t2.recontagem), 0) > 0 THEN ROUND(COALESCE(SUM(t2.recontagem)::numeric, 0), 2)
+                    ELSE ROUND(COALESCE(SUM(t2.contagem)::numeric, 0), 2)
+                END AS total_contagem
             FROM inventario.base_inventario_2023 AS t1
             LEFT JOIN inventario.registros AS t2 ON t2.codigo = t1.codigo 
-            WHERE t1.familia = {}
+            WHERE t1.familia = 1
             GROUP BY t1.codigo, t1.descricao, t1.familia;
         """.format(user_almox))
 

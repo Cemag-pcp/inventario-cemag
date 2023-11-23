@@ -79,7 +79,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" style="margin-bottom: 8px;">Faça a recontagem das peças e insira novamente o valor</h2>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button id="closeModalRecontagem" type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form>
                 <div class="modal-body">
@@ -480,6 +480,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 });
 
+</script>
+
+<script>
+    /// Atualiza a página quando o botão for clicado
+    document.getElementById('closeModalRecontagem').addEventListener('click', function() {
+
+        location.reload();
+    });
 </script>
 
 
