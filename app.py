@@ -106,11 +106,12 @@ def inventario():
 
         try:
 
-            cur.execute("SELECT saldo FROM inventario.base_inventario_2023 WHERE codigo = '{}' AND familia = {} AND origem = 'Innovaro' AND curva_abc = 'A'".format(codigo,familia))
-
+            cur.execute("SELECT saldo,curva_abc FROM inventario.base_inventario_2023 WHERE codigo = '{}' AND familia = {} AND origem = 'Innovaro'".format(codigo,familia))
+                        
             saldo = cur.fetchall()
 
             saldo_value = saldo[0][0]
+            curva_abc = saldo[0][1]
 
         except:
             saldo = []
@@ -120,12 +121,20 @@ def inventario():
         cur.close()
         conn.close()
 
+        print(contagem)
+        print(saldo_value)
+
         if len(saldo) > 0:
 
-            if contagem != saldo_value:
+            if curva_abc == 'A' and contagem != saldo_value:
+                return jsonify(codigo)
+            elif curva_abc == 'B' and contagem != saldo_value and (contagem > (saldo_value - (0.1 * saldo_value)) or contagem < (saldo_value + (0.1 * saldo_value))):
+                return jsonify(codigo)
+            elif curva_abc == 'C' and contagem != saldo_value and (contagem > (saldo_value - (0.2 * saldo_value)) or contagem < (saldo_value + (0.2 * saldo_value))):
                 return jsonify(codigo)
             else: 
                 print("Não precisa de recontagem")
+
         else: 
             print("Não precisa de recontagem")
 
@@ -148,7 +157,7 @@ def inventario():
                 END AS total_contagem
             FROM inventario.base_inventario_2023 AS t1
             LEFT JOIN inventario.registros AS t2 ON t2.codigo = t1.codigo 
-            WHERE t1.familia = 1
+            WHERE t1.familia = {}
             GROUP BY t1.codigo, t1.descricao, t1.familia;
         """.format(user_almox))
 
