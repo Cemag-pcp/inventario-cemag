@@ -121,9 +121,6 @@ def inventario():
         cur.close()
         conn.close()
 
-        print(contagem)
-        print(saldo_value)
-
         if len(saldo) > 0:
 
             if curva_abc == 'A' and contagem != saldo_value:
@@ -169,7 +166,7 @@ def inventario():
                     T5.*,
                     T6.data_mais_antiga,
                     CASE
-                        WHEN T5.contagem_agrupada != T5.saldo AND T5.recontagem_agrupada IS NULL AND T5.curva_abc = 'A' THEN 'Recontar'
+                        WHEN T5.contagem_agrupada != T5.saldo AND T5.recontagem_agrupada IS NULL THEN 'Recontar'
                         ELSE ''
                     END AS necessidade_recontagem
                 FROM (

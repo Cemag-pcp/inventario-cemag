@@ -131,8 +131,9 @@
 <div class="table table-1" id="tabela-container" style="margin: 40px; margin-left: 20px;">
     <section class="table__header">
         <h2>Tabela Inventário</h2>
-        <label>Necessidade de recontar</label>
-        <input type="checkbox" id="checkboxRecontar">
+        <button class="botão_filtrar" style="margin-top: 0px; width: 285px;" id="download_necessidade_recontar">
+            <i class="fas fa-download"></i> Download Recontagem
+        </button>
     </section>
     <section class="table__body">
         <table class="responsive-table" id="tabela-principal">
@@ -245,6 +246,7 @@
 
                 if (dado[4] === 'Recontar') {
                     totalCell.innerHTML = `${dado[3]} <i class="fas fa-exclamation-triangle" style="color: red;"></i>`;
+                    row.classList.add('linha-com-icone'); // Adiciona a classe à linha que contém o ícone
                 } else {
                     totalCell.textContent = dado[3];
                 }
@@ -266,12 +268,62 @@
 
                 tbody.appendChild(row);
             }
+            
+            const linhasComIcones = document.querySelectorAll('.linha-com-icone');
+
         }
         // Inicializa a tabela com os dados da primeira página
         atualizarTabela();
     });
 </script>
 
+<script>
+    // Atualize o evento de clique do botão existente
+    document.getElementById('download_necessidade_recontar').addEventListener('click', function () {
+        baixarLinhasComIcones();
+    });
+
+    // Função para baixar linhas com ícones em CSV
+    function baixarLinhasComIcones() {
+        const tabela = document.getElementById('tabela-principal');
+        const linhasParaDownload = tabela.querySelectorAll('.linha-com-icone');
+
+        // Crie um array para armazenar os dados das linhas com ícones
+        const linhasCSV = [];
+
+        // Adicione o cabeçalho ao array
+        linhasCSV.push(['Código', 'Descrição', 'Contagem', 'Total']);
+
+        // Adicione os dados das linhas com ícones ao array
+        linhasParaDownload.forEach(function (linha) {
+            const dadosLinha = [];
+
+            linha.querySelectorAll('td').forEach(function (celula) {
+                dadosLinha.push(celula.textContent.trim());
+            });
+
+            linhasCSV.push(dadosLinha);
+        });
+
+        // Converta o array para uma string CSV
+        const csvContent = linhasCSV.map(row => row.join(',')).join('\n');
+
+        // Crie um Blob com o conteúdo CSV
+        const blob = new Blob(["\uFEFF", csvContent], { type: 'text/csv' });
+
+        // Crie um link de download e simule um clique
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'linhas_com_icones.csv';
+        document.body.appendChild(link);
+        link.click();
+
+        // Remova o link após o clique simulado
+        document.body.removeChild(link);
+    }
+
+
+</script>
 <!-- AÇÃO DO BOTÃO DE ENVIAR DA TABELA -->
 
 <script>
