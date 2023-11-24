@@ -40,7 +40,7 @@
     </section>
 </div>
 
-<div id="meuModal" class="modal fade">
+<div id="meuModal" class="modal fade" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -74,7 +74,7 @@
     </div>
 </div>
 
-<div id="modalRecontagem" class="modal fade">
+<div id="modalRecontagem" class="modal fade" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -100,6 +100,27 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="botão_filtrar" id="salvarRecontagem">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalSimNao" class="modal fade" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="title_Sim_Nao" style="margin-bottom: 8px;"></h2>
+                <button id="closeModalRecontagem" type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <button type="button"  id="buttonNao" class="fora_lista">Não</button>
+                            <button type="button" id="buttonSim" class="botão_filtrar">Sim</button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -274,10 +295,10 @@
                     // Após a ação bem-sucedida
                     $('#success-danger').html('Informe um valor válido diferente de zero').show();
 
-                    // Defina um temporizador para ocultar a mensagem após 5 segundos
+                    // Defina um temporizador para ocultar a mensagem após 2 segundos
                     setTimeout(function() {
                     $('#success-danger').hide();
-                    }, 5000); // 5000 milissegundos (5 segundos)
+                    }, 2000); // 2000 milissegundos (2 segundos)
 
                 } else if (contagem === '') {
                     // Verifique se contagem está em branco
@@ -287,7 +308,7 @@
                     // Defina um temporizador para ocultar a mensagem após 5 segundos
                     setTimeout(function() {
                     $('#success-danger').hide();
-                    }, 5000); // 5000 milissegundos (5 segundos)
+                    }, 2000); // 2000 milissegundos (2 segundos)
 
                 }
                  else {
@@ -313,7 +334,6 @@
                             // Manipule a resposta recebida do servidor aqui
 
                             $("#loading-overlay").hide();
-                            console.log("Resposta do servidor:", codigo);
 
                             if (codigo !== undefined && codigo !== null) {
                                 // 'familia' está definido, então você pode acessá-lo com segurança
@@ -323,7 +343,6 @@
                                 $('#modalRecontagem').on('shown.bs.modal', function () {
                                     $('body').addClass('modal-open');
                                     $('#codigoRecontagem').val(codigo + " - " + descricao);
-                                    console.log(codigo + " - " + descricao)
                                     $('#valorUltimaRecontagem').val(parseFloat(total) + parseFloat(contagem));
                                 });
 
@@ -332,7 +351,6 @@
                                     $('body').removeClass('modal-open');
                                     location.reload();
                                 });
-                                console.log("Código recebido:", codigo);
                                 }
                             
                             // $('#success-message').html('Registro salvo com sucesso').show();
@@ -373,7 +391,7 @@
 
     $(document).ready(function () {
     // Adicione um manipulador de eventos ao botão "salvarRecontagem"
-    $("#salvarRecontagem").on("click", function () {
+    $("#buttonSim").on("click", function () {
         // Obtenha os valores dos campos de input
         $("#loading-overlay").show();
         var codigoRecontagem = $("#codigoRecontagem").val();
@@ -392,9 +410,8 @@
             data: JSON.stringify(dadosRecontagem),
             dataType: "json",
             success: function (resposta) {
-                // Manipule a resposta do servidor aqui, se necessário
                 console.log("Resposta do servidor modal_recontagem:", resposta);
-                // Aqui você pode realizar ações adicionais com base na resposta, se necessário
+                
                 location.reload();
                 $("#loading-overlay").hide();
             },
@@ -406,6 +423,37 @@
         });
     });
 });
+
+$(document).ready(function () {
+    // Adicione um manipulador de eventos ao botão "salvarRecontagem"
+    $("#salvarRecontagem").on("click", function () {
+        var recontagem = $("#recontagem").val();  // Mova esta linha para dentro da função de clique
+        $('#title_Sim_Nao').text('Tem certeza que o valor da recontagem é ' + recontagem + ' ?');
+
+        $('#modalSimNao').modal('show');
+        $('#modalSimNao').on('show.bs.modal', function () {
+            $('body').addClass('modal-open');
+        });
+        $('#modalSimNao').on('click', '.close', function () {
+            $('#modalSimNao').modal('hide');
+            $('body').removeClass('modal-open');
+            var recontagem = $("#recontagem");
+            recontagem.val('');
+        });
+    });
+});
+
+$(document).ready(function () {
+    // Adicione um manipulador de eventos ao botão "salvarRecontagem"
+    $("#buttonNao").on("click", function () {
+        $('#modalSimNao').modal('hide');
+        $('body').removeClass('modal-open');
+        var recontagem = $("#recontagem");
+        recontagem.val('');
+    });
+});
+
+
 </script>
 
 <!-- AÇÃO DO BOTÃO DE ENVIAR DENTRO DO MODAL -->
