@@ -71,7 +71,7 @@ def login():
             session['user_id'] = user['usuario']
             return redirect(url_for('inventario'))
         else:
-            flash('Usuário ou Senha inválida', category='error')
+            flash('Usuário ou Senha inválida')
 
     return render_template('login.html')
 
