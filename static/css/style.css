@@ -269,7 +269,7 @@ tbody tr.hide td i {
 
     .table__body {
         width: 100%;
-        max-height: calc(100% - .8rem);
+        max-height: calc(100% - 6rem);
         margin: .0rem auto;
         border-radius: .6rem;
         overflow: auto;
@@ -400,7 +400,7 @@ tbody tr.hide td i {
 
 .botão_filtrar {
     width: 200px;
-    padding: 10px;
+    padding: 5px;
     margin-top: 30px;
     height: 40px;
     background: #8ECAEC;
