@@ -342,17 +342,7 @@
                 var total = linha.querySelector("td:nth-child(4)").textContent; 
 
                 // Verifique se contagem é igual a 0
-                if (contagem === '0') {
-                    // Se for igual a 0, exiba um alerta
-                    // Após a ação bem-sucedida
-                    $('#success-danger').html('Informe um valor válido diferente de zero').show();
-
-                    // Defina um temporizador para ocultar a mensagem após 2 segundos
-                    setTimeout(function() {
-                    $('#success-danger').hide();
-                    }, 2000); // 2000 milissegundos (2 segundos)
-
-                } else if (contagem === '') {
+                if (contagem === '') {
                     // Verifique se contagem está em branco
                     // Após a ação bem-sucedida
                     $('#success-danger').html('Informe um valor válido').show();
@@ -480,6 +470,14 @@ $(document).ready(function () {
     // Adicione um manipulador de eventos ao botão "salvarRecontagem"
     $("#salvarRecontagem").on("click", function () {
         var recontagem = $("#recontagem").val();  // Mova esta linha para dentro da função de clique
+
+        if (recontagem === '' || recontagem < 0) {
+            $('#success-danger').html('Informe um valor válido').show();
+            setTimeout(function() {
+                $('#success-danger').hide();
+            }, 1500); // 5000 milissegundos (5 segundos)
+            return; // Interrompe a execução da função se o campo estiver vazio
+        }
         $('#title_Sim_Nao').text('Tem certeza que o valor da recontagem é ' + recontagem + ' ?');
 
         $('#modalSimNao').modal('show');
@@ -544,19 +542,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        if (quantidade === '0') { // Corrigido aqui: quantidadeInput.value deve ser quantidade
-
-            $('#success-danger').html('Informe um valor válido diferente de zero').show();
-
-            // Defina um temporizador para ocultar a mensagem após 5 segundos
-            setTimeout(function() {
-                $('#success-danger').hide();
-            }, 2000); // 5000 milissegundos (5 segundos)
-
-        } else if (quantidade === '') {
+        if (quantidade === '' || quantidade < 0) {
             // Verifique se contagem está em branco
             // Após a ação bem-sucedida
-            $('#success-danger').html('Informe um valor válido').show();
+            $('#success-danger').html('Informe um valor válido para a quantidade').show();
 
             // Defina um temporizador para ocultar a mensagem após 5 segundos
             setTimeout(function() {
