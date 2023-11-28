@@ -545,7 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (quantidade === '' || quantidade < 0) {
             // Verifique se contagem está em branco
             // Após a ação bem-sucedida
-            $('#success-danger').html('Informe um valor válido para a quantidade').show();
+            $('#success-danger').html('Valor inválido para quantidade').show();
 
             // Defina um temporizador para ocultar a mensagem após 5 segundos
             setTimeout(function() {
@@ -553,7 +553,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 2000); // 5000 milissegundos (5 segundos)
 
         } else if (codigo === '' || codigo === '0') {
-            alert("Informe um valor válido para o código");
+            alert("Valor inválido para código");
             return; // Impede o envio dos dados para o servidor
         } else {
             // Se contagem não for igual a 0 nem estiver em branco, prossiga com o restante do código
