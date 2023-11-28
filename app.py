@@ -214,9 +214,12 @@ def inventario():
     df_dados = pd.DataFrame(dados)
     df_necessidade_recontagem = pd.DataFrame(necessidade_recontagem)
 
-    df_merge = df_dados.merge(df_necessidade_recontagem[['codigo','familia','necessidade_recontagem']], how='left', on=['codigo', 'familia'])
-
-    dados = df_merge.values.tolist()
+    if len(df_necessidade_recontagem) > 0:
+        df_merge = df_dados.merge(df_necessidade_recontagem[['codigo','familia','necessidade_recontagem']], how='left', on=['codigo', 'familia'])
+    
+        dados = df_merge.values.tolist()
+    else:
+        dados = df_dados.values.tolist()
 
     return render_template('inventario.html', dados=dados)
 
