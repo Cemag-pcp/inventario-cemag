@@ -463,7 +463,7 @@
                                     $('body').removeClass('modal-open');
                                     location.reload();
                                 });
-                                }
+                            }
                             
                             // $('#success-message').html('Registro salvo com sucesso').show();
 
@@ -523,12 +523,12 @@
             dataType: "json",
             success: function (resposta) {
                 console.log("Resposta do servidor modal_recontagem:", resposta);
-                $('#success-message').html('Registro salvo com sucesso').show();
                 location.reload();
                 $("#loading-overlay").hide();
             },
             error: function (erro) {
                 console.error("Erro na solicitação:", erro);
+                    $('#success-message').html('Registro salvo com sucesso').show();
                 location.reload();
                 $("#loading-overlay").hide();
             }
