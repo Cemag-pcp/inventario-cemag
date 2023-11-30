@@ -31,7 +31,7 @@
             <label for="descricao-filtro">Descrição:</label>
             <input type="text" class="form-control" id="descricao-filtro" name="descricao-filtro"><br><br>
             <div class="filtro_e_fora">
-                <input type="submit" class="botão_filtrar" value="Filtrar" onclick="resetarTabela()">
+                <input type="submit" id="submit_filtrar" class="botão_filtrar" value="Filtrar" onclick="resetarTabela()">
                 <button type="button" class="fora_lista" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
                 <button id="toggleLinhasComIcone" onclick="toggleLinhas()">Peças para recontagem</button>
             </div>
@@ -196,6 +196,24 @@
 <!-- FILTROS DA TABELA PRINCIPAL -->
 
 <script>
+
+    const botaoFiltrar = document.getElementById('submit_filtrar');
+    const botaoRecontagem = document.getElementById('toggleLinhasComIcone'); // Remova o caractere '#' aqui
+
+    botaoFiltrar.addEventListener('click', () => {
+        window.scroll({
+            top: window.innerHeight,
+            behavior: 'smooth'
+        });
+    });
+
+    botaoRecontagem.addEventListener('click', () => {
+        window.scroll({
+            top: window.innerHeight,
+            behavior: 'smooth'
+        });
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         // Captura o formulário e a tabela
         const form = document.getElementById('filtro-form');
