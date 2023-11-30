@@ -121,6 +121,8 @@ def inventario():
         cur.close()
         conn.close()
 
+        print(saldo)
+
         if len(saldo) > 0:
 
             if curva_abc == 'A' and contagem != saldo_value:
