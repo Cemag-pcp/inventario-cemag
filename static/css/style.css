@@ -238,7 +238,7 @@ tbody tr.hide td i {
 
     div.table2 {
         width: 90vw;
-        height: 500px;
+        height: 600px;
         margin-bottom: 10px;
         background-color: #fff5;
         box-shadow: 0 0.4rem 0.8rem #0005;
@@ -478,3 +478,26 @@ tbody tr.hide td i {
     justify-content: center;
 }
 
+.linha-oculta {
+    display: none;
+}
+
+#toggleLinhasComIcone {
+    width: 200px;
+    padding: 5px;
+    margin-top: 30px;
+    height: 40px;
+    background: #8ECAEC;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    color: #fff;
+    box-shadow: 0 0.2rem 0.3rem rgba(0, 0, 0, 0.151);
+}
+
+#toggleLinhasComIcone.botao-ativo {
+    border: 2px solid #3498db;
+}

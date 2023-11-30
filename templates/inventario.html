@@ -31,11 +31,10 @@
             <label for="descricao-filtro">Descrição:</label>
             <input type="text" class="form-control" id="descricao-filtro" name="descricao-filtro"><br><br>
             <div class="filtro_e_fora">
-            <input type="submit" class="botão_filtrar" value="Filtrar">
-            <button type="button" class="fora_lista" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
+                <input type="submit" class="botão_filtrar" value="Filtrar" onclick="resetarTabela()">
+                <button type="button" class="fora_lista" data-toggle="modal" data-target="#meuModal">Peça fora da lista</button>
+                <button id="toggleLinhasComIcone" onclick="toggleLinhas()">Peças para recontagem</button>
             </div>
-        </div>
-        </div>
     </form>
     </section>
 </div>
@@ -138,7 +137,7 @@
     <section class="table__body">
         <table class="responsive-table" id="tabela-principal">
         <thead>
-            <tr>
+            <tr class="linha-com-icone">
                 <th>Código</th>
                 <th style="width: 500px;">Descrição</th>
                 <th>Contagem</th>
@@ -205,7 +204,11 @@
         // Adiciona um ouvinte de evento para o envio do formulário
         form.addEventListener('submit', function (e) {
             e.preventDefault(); // Impede o envio do formulário padrão
-
+            $('#loading-overlay').show()
+            setTimeout(function() {
+                $('#loading-overlay').hide()
+            }, 1000); // 2000 milissegundos (2 segundos)
+            
             // Captura os valores dos campos de filtro
             const campo1Value = document.getElementById('codigo-filtro').value.toLowerCase();
             const campo2Value = document.getElementById('descricao-filtro').value.toLowerCase();
@@ -249,6 +252,7 @@
                     row.classList.add('linha-com-icone'); // Adiciona a classe à linha que contém o ícone
                 } else {
                     totalCell.textContent = dado[3];
+                    row.classList.remove('linha-oculta');
                 }
 
                 row.innerHTML = `
@@ -282,6 +286,54 @@
     document.getElementById('download_necessidade_recontar').addEventListener('click', function () {
         baixarLinhasComIcones();
     });
+
+    function toggleLinhas() {
+        const linhasComIcones = document.querySelectorAll('.linha-com-icone');
+
+        // Percorre todas as linhas e adiciona a classe linha-oculta se não tiver a classe linha-com-icone
+        document.querySelectorAll('tr').forEach((linha) => {
+            if (!linha.classList.contains('linha-com-icone')) {
+                linha.classList.toggle('linha-oculta'); // Adiciona ou remove a classe linha-oculta
+            }
+        });
+
+        // Obtém o botão e altera a cor com base na existência da classe linha-oculta nas linhas sem linha-com-icone
+        const botaoToggle = document.getElementById('toggleLinhasComIcone');
+        botaoToggle.classList.toggle('botao-ativo');
+    }
+
+    function resetarTabela() {
+        document.querySelectorAll('tr').forEach((linha) => {
+            linha.classList.remove('linha-oculta');
+        });
+
+        const botaoToggle = document.getElementById('toggleLinhasComIcone');
+        botaoToggle.classList.remove('botao-ativo');
+    }
+
+    const codigoFiltro = document.getElementById('codigo-filtro');
+    const descricaoFiltro = document.getElementById('descricao-filtro');
+    const botaoToggle = document.getElementById('toggleLinhasComIcone');
+
+    // Adiciona listeners para os campos de filtro
+    codigoFiltro.addEventListener('input', verificarCamposFiltro);
+    descricaoFiltro.addEventListener('input', verificarCamposFiltro);
+
+    // Função para verificar os campos de filtro e habilitar/desabilitar o botão
+    function verificarCamposFiltro() {
+        if (codigoFiltro.value !== '' || descricaoFiltro.value !== '') {
+            // Pelo menos um dos campos de filtro está preenchido, desabilita o botão
+            botaoToggle.style.backgroundColor = 'gray'
+            botaoToggle.disabled = true;
+        } else {
+            // Ambos os campos de filtro estão vazios, habilita o botão
+            botaoToggle.style.backgroundColor = '#3498db'
+            botaoToggle.disabled = false;
+        }
+    }
+
+    // Adicione esta chamada de função para verificar o estado inicial dos campos
+    verificarCamposFiltro();
 
     // Função para baixar linhas com ícones em CSV
     function baixarLinhasComIcones() {
@@ -453,7 +505,7 @@
             dataType: "json",
             success: function (resposta) {
                 console.log("Resposta do servidor modal_recontagem:", resposta);
-                
+                $('#success-message').html('Registro salvo com sucesso').show();
                 location.reload();
                 $("#loading-overlay").hide();
             },
