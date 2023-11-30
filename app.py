@@ -157,7 +157,7 @@ def inventario():
                     ELSE ROUND(COALESCE(SUM(t2.contagem)::numeric, 0), 2)
                 END AS total_contagem
             FROM inventario.base_inventario_2023 AS t1
-            LEFT JOIN inventario.registros AS t2 ON t2.codigo = t1.codigo 
+            LEFT JOIN inventario.registros AS t2 ON t2.codigo = t1.codigo and t2.familia = t1.familia 
             WHERE t1.familia = {}
             GROUP BY t1.codigo, t1.descricao, t1.familia;
         """.format(user_almox))
@@ -191,6 +191,7 @@ def inventario():
                         FROM inventario.registros AS T1
                         LEFT JOIN inventario.base_inventario_2023 AS T2
                             ON T1.codigo = T2.codigo AND T1.familia = T2.familia
+                        WHERE T1.familia = {}
                         GROUP BY
                             T1.familia,
                             T1.codigo,
@@ -211,7 +212,7 @@ def inventario():
                     GROUP BY codigo, familia
                 ) AS T6 ON T5.codigo = T6.codigo AND T5.familia = T6.familia
                 ORDER BY T6.data_mais_antiga;
-                """)
+                """.format(user_almox))
     
     necessidade_recontagem = cur.fetchall()
 
