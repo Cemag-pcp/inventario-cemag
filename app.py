@@ -97,6 +97,8 @@ def inventario():
         data_atual = datetime.now()
         # Salvar dados na tabela registro
         print(contagem)
+        print(descricao)
+        descricao = descricao.replace("'"," ")
         cur.execute("INSERT INTO inventario.registros (codigo,descricao,familia,contagem, data_hora_atual) VALUES ('{}','{}',{}, {}, '{}')".format(codigo,descricao,familia,contagem,data_atual))
 
         cur.execute("SELECT sum(contagem) FROM inventario.registros WHERE codigo = '{}' AND familia = '{}' GROUP BY codigo,familia".format(codigo,familia))
@@ -288,6 +290,8 @@ def modal():
     data_atual = datetime.now()
     familia = int(session['user_id'])
     origem = 'Fora da lista'
+    
+    descricao = descricao.replace("'"," ")
 
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
                             password=DB_PASS, host=DB_HOST)
