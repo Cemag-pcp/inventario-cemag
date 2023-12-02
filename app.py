@@ -187,7 +187,8 @@ def inventario():
                             T2.custo,
                             T2.custo_medio,
                             ROUND(SUM(T1.contagem)) AS contagem_agrupada,
-                            ROUND(SUM(T1.recontagem)) AS recontagem_agrupada
+                            ROUND(SUM(T1.recontagem)) AS recontagem_agrupada,
+                            SUM(saldo) as saldo_somado
                         FROM inventario.registros AS T1
                         LEFT JOIN inventario.base_inventario_2023 AS T2
                             ON T1.codigo = T2.codigo AND T1.familia = T2.familia
