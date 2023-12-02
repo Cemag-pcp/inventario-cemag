@@ -1,7 +1,7 @@
 Flask==2.2.2
 psycopg2==2.9.6
 pandas==1.3.5
-numpy==1.23.1
+numpy==1.21.5S
 certifi==2022.12.7
 gunicorn==20.1.0
 reportlab==3.6.12
